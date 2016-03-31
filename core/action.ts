@@ -4,7 +4,7 @@ import {Player} from './player';
 import {Effect} from './effect';
 import {Field, PHASE_DAY, PHASE_NIGHT} from './field';
 
-import {VoteBox, initVoteBox, countVotes, VOTERESULT_CHOSEN, VOTERESULT_MULTI, VOTERESULT_NONE} from './lib/votebox';
+import {VoteBox, initVoteBox, addVote, countVotes, VOTERESULT_CHOSEN, VOTERESULT_MULTI, VOTERESULT_NONE} from './lib/votebox';
 
 import * as eventname from './event/name';
 import * as eventtype from './event/type';
@@ -22,6 +22,7 @@ export default ({
     [eventname.EVENT_PHASE_NIGHT]: ({field})=>{
         field.phase = PHASE_NIGHT;
     },
+
 
     [eventname.EVENT_LYNCH]: ({adder, field, event})=>{
         //処刑対象を決定する
@@ -41,6 +42,19 @@ export default ({
         }
     },
 
+    [eventname.EVENT_VOTE]:({field, event})=>{
+        const event2 = event as eventtype.VoteEvent;
+        //投票する
+        if(field.votebox == null){
+            field.votebox = initVoteBox();
+        }
+        addVote(field.votebox, {
+            from: event2.from,
+            to: event2.to,
+            num: event2.num,
+            priority: event2.priority
+        });
+    },
     [eventname.EVENT_DIE]:({players, event})=>{
         const event2 = event as eventtype.DieEvent;
         //プレイヤーが死亡

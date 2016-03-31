@@ -1,9 +1,21 @@
 import {Event} from '../../lib';
 
+//投票するイベント
+export interface VoteEvent extends Event{
+    //投票者
+    from: string;
+    //投票先
+    to: string;
+    //票数
+    num: number;
+    //優先度
+    priority: number;
+}
+
 //処刑をするイベント
 export interface LynchEvent extends Event{
     //投票結果がどうなったか
-    voteResult: string;
+    voteResult?: string;
 }
 
 //死亡するイベント

@@ -19,7 +19,7 @@ export interface VoteBox{
 //票カウント
 export const VOTERESULT_CHOSEN = "chosen";  //結果があった
 export const VOTERESULT_MULTI = "multi";    //複数人いる
-export const VOTERESULT_NONE = "nonte";     //無効
+export const VOTERESULT_NONE = "none";     //無効
 export interface VoteResult{
     //結果の種類
     result: string;
