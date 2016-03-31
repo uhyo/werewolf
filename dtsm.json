@@ -18,6 +18,9 @@
     },
     "node/node.d.ts": {
       "ref": "80057d687aefa736511e434cd2a6c0e9a6bb02bc"
+    },
+    "jasmine/jasmine.d.ts": {
+      "ref": "e937b3e64af586d19f2ea29fdf771e9dc4feecc8"
     }
   }
 }

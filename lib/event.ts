@@ -2,6 +2,9 @@
 export interface Event{
     //Event type
     type: string;
+
+    //prevented flag
+    prevented?: boolean;
 }
 
 export class EventBase{
@@ -27,7 +30,7 @@ export class EventBase{
 export class EventAdder{
     constructor(private base:EventBase){
     }
-    public addEvent(e:Event):void{
+    public addEvent<E extends Event>(e:E):void{
         this.base.addEvent(e);
     }
 }

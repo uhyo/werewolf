@@ -10,14 +10,14 @@ export interface Player{
 }
 
 //Players: static list of players, also support ids.
-export class Players{
-    private players:Array<Player> = [];
+export class Players<P extends Player>{
+    private players:Array<P> = [];
     public length:number;
-    add(p:Player):void{
+    add(p:P):void{
         this.players.push(p);
         this.length = this.players.length;
     }
-    get(idx:number|string):Player{
+    get(idx:number|string):P{
         if("number"===typeof idx){
             return this.players[idx];
         }else{
@@ -32,11 +32,11 @@ export class Players{
         }
     }
     //structure utility
-    asArray():Array<Player>{
+    asArray():Array<P>{
         return this.players.concat([]);
     }
-    deepClone():/* this */Players{
-        const ret = new Players();
+    deepClone():/* this */Players<P>{
+        const ret = new Players<P>();
         for(let p of this.players){
             ret.add(extend(true, {}, p));
         }
