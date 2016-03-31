@@ -24,6 +24,7 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
     constructor(initField:F){
         this.players = new Players<P>();
         this.base = new EventBase();
+        this.effects = [];
         this.field = initField;
 
         this.ruleProducers = [];
@@ -85,9 +86,9 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
         const param:HandlerParam<P,E,F> = {
             adder,
             //productionではcloneしない（高速化）
-            players: process.env.NODE_ENV === 'production' ? this.players : this.players.deepClone(),
+            players: this.getPlayers(),
             effects: process.env.NODE_ENV === 'production' ? this.effects : this.effects.map(e => extend(true,{},e)),
-            field: process.env.NODE_ENV === 'production' ? this.field : extend(true,{},this.field),
+            field: this.getField(),
             event: e
         };
         for(let {handler} of handlers){
@@ -124,6 +125,15 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
             this.runEvent(ev);
         }
         return e;
+    }
+    //----------
+    //Getter.
+    public getPlayers():Players<P>{
+        return process.env.NODE_ENV === 'production' ? this.players : this.players.deepClone();
+    }
+    public getField():F{
+        //copy to protect from modification
+        return process.env.NODE_ENV === 'production' ? this.field : extend(true,{},this.field);
     }
 }
 
