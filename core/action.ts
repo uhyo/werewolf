@@ -18,8 +18,13 @@ export default ({
         //投票を初期化する
         field.votebox = initVoteBox();
     },
-    [events.EVENT_PHASE_NIGHT]: ({field})=>{
+    [events.EVENT_PHASE_NIGHT]: ({players,field})=>{
+        //夜になる
         field.phase = PHASE_NIGHT;
+        //夜投票を全部初期化する
+        for(let p of players.asArray()){
+            p.target = null;
+        }
     },
     [events.EVENT_MIDNIGHT]: ({})=>{
     },

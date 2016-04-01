@@ -52,6 +52,28 @@ describe("Events",()=>{
                 votebox: {}
             });
         });
+        it("EVENT_PHASE_NIGHT resets target",()=>{
+            game.addPlayer(initPlayer({
+                id: "id1",
+                type: "TODO"
+            }));
+            game.addPlayer(initPlayer({
+                id: "id2",
+                type: "TODO"
+            }));
+            //targetをあれする
+            game.runAllEvents(events.initJobEvent({
+                from: "id1",
+                to: "id2"
+            }));
+            game.runAllEvents(events.initJobEvent({
+                from: "id2",
+                to: "id1"
+            }));
+            game.runAllEvents(events.initPhaseNightEvent());
+            expect(game.getPlayers().get("id1").target).toBe(null);
+            expect(game.getPlayers().get("id2").target).toBe(null);
+        });
     });
     describe("Voting Events",()=>{
         it("initVoteEvent",()=>{
