@@ -5,6 +5,9 @@ export interface Player extends lib.Player{
     dead: boolean;
     //死んだ場合その理由
     dead_reason?: string;
+
+    //夜投票の対象（ふつうはID）
+    target?: string;
 }
 
 

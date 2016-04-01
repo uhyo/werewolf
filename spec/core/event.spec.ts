@@ -6,8 +6,7 @@ import {Player, initPlayer} from '../../core/player';
 import {Field,Rule,
         PHASE_DAY, PHASE_NIGHT} from '../../core/field';
 import {Effect} from '../../core/effect';
-import * as eventname from '../../core/event/name';
-import * as eventtype from '../../core/event/type';
+import * as events from '../../core/events';
 import * as votebox from '../../core/lib/votebox';
 import * as diereason from '../../core/lib/diereason';
 
@@ -24,9 +23,19 @@ describe("Events",()=>{
         });
     });
     describe("Phase Events",()=>{
+        it("initPhaseDayEvent",()=>{
+            expect(events.initPhaseDayEvent()).toEqual({
+                type: events.EVENT_PHASE_DAY
+            });
+        });
+        it("initPhaseNightEvent",()=>{
+            expect(events.initPhaseNightEvent()).toEqual({
+                type: events.EVENT_PHASE_NIGHT
+            });
+        });
         it("EVENT_PHASE_DAY",()=>{
             game.runAllEvents({
-                type: eventname.EVENT_PHASE_DAY
+                type: events.EVENT_PHASE_DAY
             });
             expect(game.getField()).toEqual({
                 rule,
@@ -38,7 +47,7 @@ describe("Events",()=>{
 
         it("EVENT_PHASE_NIGHT",()=>{
             game.runAllEvents({
-                type: eventname.EVENT_PHASE_NIGHT
+                type: events.EVENT_PHASE_NIGHT
             });
             expect(game.getField()).toEqual({
                 rule,
@@ -49,6 +58,20 @@ describe("Events",()=>{
         });
     });
     describe("Voting Events",()=>{
+        it("initVoteEvent",()=>{
+            expect(events.initVoteEvent({
+                from: "id1",
+                to: "id2",
+                num: 2,
+                priority: 0
+            })).toEqual({
+                type: events.EVENT_VOTE,
+                from: "id1",
+                to: "id2",
+                num: 2,
+                priority: 0
+            });
+        });
         it("EVENT_VOTE",()=>{
             game.addPlayer(initPlayer({
                 id: "id1",
@@ -59,12 +82,12 @@ describe("Events",()=>{
                 type: "TODO"
             }));
             game.runAllEvents({
-                type: eventname.EVENT_VOTE,
+                type: events.EVENT_VOTE,
                 from: "id1",
                 to: "id2",
                 num: 1,
                 priority: 0
-            } as eventtype.VoteEvent);
+            } as events.VoteEvent);
             const v=game.getField().votebox;
             expect(v).toEqual({
                 id1: {
@@ -77,6 +100,16 @@ describe("Events",()=>{
         });
     });
     describe("Die Event",()=>{
+        it("initDieEvent",()=>{
+            expect(events.initDieEvent({
+                on: "id1",
+                reason: "foo"
+            })).toEqual({
+                type: events.EVENT_DIE,
+                on: "id1",
+                reason: "foo"
+            });
+        });
         it("EVENT_DIE",()=>{
             game.addPlayer(initPlayer({
                 id: "id1",
@@ -91,10 +124,10 @@ describe("Events",()=>{
                 type: "TODO"
             }));
             game.runAllEvents({
-                type: eventname.EVENT_DIE,
+                type: events.EVENT_DIE,
                 on: "id1",
                 reason: "foo"
-            } as eventtype.DieEvent);
+            } as events.DieEvent);
             expect(game.getPlayers().get("id1").dead).toBe(true);
             expect(game.getPlayers().get("id1").dead_reason).toBe("foo");
             expect(game.getPlayers().get("id2").dead).toBe(false);
@@ -106,19 +139,25 @@ describe("Events",()=>{
                 type: "TODO"
             }));
             game.runAllEvents({
-                type: eventname.EVENT_DIE,
+                type: events.EVENT_DIE,
                 on: "id1",
                 reason: "foo"
-            } as eventtype.DieEvent);
+            } as events.DieEvent);
             game.runAllEvents({
-                type: eventname.EVENT_DIE,
+                type: events.EVENT_DIE,
                 on: "id1",
                 reason: "bar"
-            } as eventtype.DieEvent);
+            } as events.DieEvent);
             expect(game.getPlayers().get("id1").dead_reason).toBe("foo");
         });
     });
     describe("Lynch Events",()=>{
+        it("initLynchEvent",()=>{
+            expect(events.initLynchEvent()).toEqual({
+                type: events.EVENT_LYNCH,
+                voteResult: null
+            });
+        });
         describe("EVENT_LYNCH",()=>{
             beforeEach(()=>{
                 game.addPlayer(initPlayer({
@@ -136,37 +175,37 @@ describe("Events",()=>{
             });
             it("Lynch result is NONE",()=>{
                 const e = game.runAllEvents({
-                    type: eventname.EVENT_LYNCH
-                }) as eventtype.LynchEvent;
+                    type: events.EVENT_LYNCH
+                }) as events.LynchEvent;
                 expect(e.voteResult).toBe(votebox.VOTERESULT_NONE);
             });
             it("Lynch result is CHOSEN",()=>{
                 //votes
                 game.runAllEvents({
-                    type: eventname.EVENT_VOTE,
+                    type: events.EVENT_VOTE,
                     from: "id1",
                     to: "id2",
                     num: 1,
                     priority: 0
-                } as eventtype.VoteEvent);
+                } as events.VoteEvent);
                 game.runAllEvents({
-                    type: eventname.EVENT_VOTE,
+                    type: events.EVENT_VOTE,
                     from: "id2",
                     to: "id1",
                     num: 1,
                     priority: 0
-                } as eventtype.VoteEvent);
+                } as events.VoteEvent);
                 game.runAllEvents({
-                    type: eventname.EVENT_VOTE,
+                    type: events.EVENT_VOTE,
                     from: "id3",
                     to: "id2",
                     num: 1,
                     priority: 0
-                } as eventtype.VoteEvent);
+                } as events.VoteEvent);
                 //lynch
                 const e = game.runAllEvents({
-                    type: eventname.EVENT_LYNCH
-                }) as eventtype.LynchEvent;
+                    type: events.EVENT_LYNCH
+                }) as events.LynchEvent;
                 expect(e.voteResult).toBe(votebox.VOTERESULT_CHOSEN);
                 const p = game.getPlayers().get("id2");
                 expect(p.dead).toBe(true);

@@ -6,32 +6,31 @@ import {Field, PHASE_DAY, PHASE_NIGHT} from './field';
 
 import {VoteBox, initVoteBox, addVote, countVotes, VOTERESULT_CHOSEN, VOTERESULT_MULTI, VOTERESULT_NONE} from './lib/votebox';
 
-import * as eventname from './event/name';
-import * as eventtype from './event/type';
+import * as events from './events';
 
 import * as diereason from './lib/diereason';
 
 export default ({
-    [eventname.EVENT_PHASE_DAY]: ({field})=>{
+    [events.EVENT_PHASE_DAY]: ({field})=>{
         //phaseが移動する
         field.phase = PHASE_DAY;
         field.day++;
         //投票を初期化する
         field.votebox = initVoteBox();
     },
-    [eventname.EVENT_PHASE_NIGHT]: ({field})=>{
+    [events.EVENT_PHASE_NIGHT]: ({field})=>{
         field.phase = PHASE_NIGHT;
     },
-
-
-    [eventname.EVENT_LYNCH]: ({adder, field, event})=>{
+    [events.EVENT_MIDNIGHT]: ({})=>{
+    },
+    [events.EVENT_LYNCH]: ({adder, field, event})=>{
         //処刑対象を決定する
         const {result, ids} = countVotes(field.votebox);
-        (event as eventtype.LynchEvent).voteResult = result;
+        (event as events.LynchEvent).voteResult = result;
         if(result===VOTERESULT_CHOSEN){
             //処刑対象が決定した
-            adder.addEvent<eventtype.DieEvent>({
-                type: eventname.EVENT_DIE,
+            adder.addEvent<events.DieEvent>({
+                type: events.EVENT_DIE,
                 on: ids[0],
                 reason: diereason.LYNCH
             });
@@ -42,8 +41,8 @@ export default ({
         }
     },
 
-    [eventname.EVENT_VOTE]:({field, event})=>{
-        const event2 = event as eventtype.VoteEvent;
+    [events.EVENT_VOTE]:({field, event})=>{
+        const event2 = event as events.VoteEvent;
         //投票する
         if(field.votebox == null){
             field.votebox = initVoteBox();
@@ -55,8 +54,8 @@ export default ({
             priority: event2.priority
         });
     },
-    [eventname.EVENT_DIE]:({players, event})=>{
-        const event2 = event as eventtype.DieEvent;
+    [events.EVENT_DIE]:({players, event})=>{
+        const event2 = event as events.DieEvent;
         //プレイヤーが死亡
         const pl = players.get(event2.on);
         if(pl && pl.dead!==true){
