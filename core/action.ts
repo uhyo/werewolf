@@ -41,6 +41,16 @@ export default ({
         }
     },
 
+    [events.EVENT_JOB]:({players, event})=>{
+        //夜の対象を決定した
+        const event2 = event as events.JobEvent;
+        const pl = players.get(event2.from);
+        if(pl != null){
+            //Playerが存在した
+            pl.target = event2.to;
+        }
+    },
+
     [events.EVENT_VOTE]:({field, event})=>{
         const event2 = event as events.VoteEvent;
         //投票する

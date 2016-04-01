@@ -34,9 +34,7 @@ describe("Events",()=>{
             });
         });
         it("EVENT_PHASE_DAY",()=>{
-            game.runAllEvents({
-                type: events.EVENT_PHASE_DAY
-            });
+            game.runAllEvents(events.initPhaseDayEvent());
             expect(game.getField()).toEqual({
                 rule,
                 phase: PHASE_DAY,
@@ -46,9 +44,7 @@ describe("Events",()=>{
         });
 
         it("EVENT_PHASE_NIGHT",()=>{
-            game.runAllEvents({
-                type: events.EVENT_PHASE_NIGHT
-            });
+            game.runAllEvents(events.initPhaseNightEvent());
             expect(game.getField()).toEqual({
                 rule,
                 phase: PHASE_NIGHT,
@@ -98,6 +94,50 @@ describe("Events",()=>{
                 }
             });
         });
+        it("initJobEvent",()=>{
+            expect(events.initJobEvent({
+                from: "id1",
+                to: "id2"
+            })).toEqual({
+                type: events.EVENT_JOB,
+                from: "id1",
+                to: "id2"
+            });
+        });
+        it("EVENT_JOB",()=>{
+            game.addPlayer(initPlayer({
+                id: "id1",
+                type: "TODO"
+            }));
+            game.addPlayer(initPlayer({
+                id: "id2",
+                type: "TODO"
+            }));
+            game.runAllEvents(events.initJobEvent({
+                from: "id1",
+                to: "id2"
+            }));
+            expect(game.getPlayers().get("id1").target).toBe("id2");
+        });
+        it("EVENT_JOB overrides target",()=>{
+            game.addPlayer(initPlayer({
+                id: "id1",
+                type: "TODO"
+            }));
+            game.addPlayer(initPlayer({
+                id: "id2",
+                type: "TODO"
+            }));
+            game.runAllEvents(events.initJobEvent({
+                from: "id1",
+                to: "id2"
+            }));
+            game.runAllEvents(events.initJobEvent({
+                from: "id1",
+                to: "id1"
+            }));
+            expect(game.getPlayers().get("id1").target).toBe("id1");
+        });
     });
     describe("Die Event",()=>{
         it("initDieEvent",()=>{
@@ -123,11 +163,10 @@ describe("Events",()=>{
                 id: "id3",
                 type: "TODO"
             }));
-            game.runAllEvents({
-                type: events.EVENT_DIE,
+            game.runAllEvents(events.initDieEvent({
                 on: "id1",
                 reason: "foo"
-            } as events.DieEvent);
+            }));
             expect(game.getPlayers().get("id1").dead).toBe(true);
             expect(game.getPlayers().get("id1").dead_reason).toBe("foo");
             expect(game.getPlayers().get("id2").dead).toBe(false);
@@ -138,16 +177,14 @@ describe("Events",()=>{
                 id: "id1",
                 type: "TODO"
             }));
-            game.runAllEvents({
-                type: events.EVENT_DIE,
+            game.runAllEvents(events.initDieEvent({
                 on: "id1",
                 reason: "foo"
-            } as events.DieEvent);
-            game.runAllEvents({
-                type: events.EVENT_DIE,
+            }));
+            game.runAllEvents(events.initDieEvent({
                 on: "id1",
                 reason: "bar"
-            } as events.DieEvent);
+            }));
             expect(game.getPlayers().get("id1").dead_reason).toBe("foo");
         });
     });
@@ -174,38 +211,31 @@ describe("Events",()=>{
                 }));
             });
             it("Lynch result is NONE",()=>{
-                const e = game.runAllEvents({
-                    type: events.EVENT_LYNCH
-                }) as events.LynchEvent;
+                const e = game.runAllEvents(events.initLynchEvent()) as events.LynchEvent;
                 expect(e.voteResult).toBe(votebox.VOTERESULT_NONE);
             });
             it("Lynch result is CHOSEN",()=>{
                 //votes
-                game.runAllEvents({
-                    type: events.EVENT_VOTE,
+                game.runAllEvents(events.initVoteEvent({
                     from: "id1",
                     to: "id2",
                     num: 1,
                     priority: 0
-                } as events.VoteEvent);
-                game.runAllEvents({
-                    type: events.EVENT_VOTE,
+                }));
+                game.runAllEvents(events.initVoteEvent({
                     from: "id2",
                     to: "id1",
                     num: 1,
                     priority: 0
-                } as events.VoteEvent);
-                game.runAllEvents({
-                    type: events.EVENT_VOTE,
+                }));
+                game.runAllEvents(events.initVoteEvent({
                     from: "id3",
                     to: "id2",
                     num: 1,
                     priority: 0
-                } as events.VoteEvent);
+                }));
                 //lynch
-                const e = game.runAllEvents({
-                    type: events.EVENT_LYNCH
-                }) as events.LynchEvent;
+                const e = game.runAllEvents(events.initLynchEvent()) as events.LynchEvent;
                 expect(e.voteResult).toBe(votebox.VOTERESULT_CHOSEN);
                 const p = game.getPlayers().get("id2");
                 expect(p.dead).toBe(true);
