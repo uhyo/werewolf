@@ -75,7 +75,7 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
     }
 
     //Handle one Event.
-    handleEvent(e:Event):Event{
+    handleEvent<Ev extends Event>(e:Ev):Ev{
         const handlers:Array<EventHandler<P,E,F>> = [];
         //from ruleProducers
         for(let pr of this.ruleProducers){
@@ -126,7 +126,7 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
         return e;
     }
     //run one event.
-    runEvent(e:Event):Event{
+    runEvent<Ev extends Event>(e:Ev):Ev{
         this.handleEvent(e);
 
         if(e.prevented !== true){
@@ -145,7 +145,7 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
         return e;
     }
     //run all events.
-    runAllEvents(e:Event):Event{
+    runAllEvents<Ev extends Event>(e:Ev):Ev{
         const base = this.base;
         base.addEvent(e);
         let ev:Event;

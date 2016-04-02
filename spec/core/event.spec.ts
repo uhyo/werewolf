@@ -8,6 +8,7 @@ import {Field,Rule,
 import {Effect} from '../../core/effect';
 import * as events from '../../core/events';
 import * as votebox from '../../core/lib/votebox';
+import * as count from '../../core/lib/count';
 import * as diereason from '../../core/lib/diereason';
 
 
@@ -233,7 +234,7 @@ describe("Events",()=>{
                 }));
             });
             it("Lynch result is NONE",()=>{
-                const e = game.runAllEvents(events.initLynchEvent()) as events.LynchEvent;
+                const e = game.runAllEvents(events.initLynchEvent());
                 expect(e.voteResult).toBe(votebox.VOTERESULT_NONE);
             });
             it("Lynch result is CHOSEN",()=>{
@@ -257,12 +258,22 @@ describe("Events",()=>{
                     priority: 0
                 }));
                 //lynch
-                const e = game.runAllEvents(events.initLynchEvent()) as events.LynchEvent;
+                const e = game.runAllEvents(events.initLynchEvent());
                 expect(e.voteResult).toBe(votebox.VOTERESULT_CHOSEN);
                 const p = game.getPlayers().get("id2");
                 expect(p.dead).toBe(true);
                 expect(p.dead_reason).toBe(diereason.LYNCH);
             });
+        });
+    });
+    describe("Query Events",()=>{
+        it("EVENT_QUERY_COUNT defaults to human",()=>{
+            game.addPlayer(initPlayer({
+                id: "id1",
+                type: "TODO"
+            }));
+            const e = game.runAllEvents(events.initQueryCountEvent("id1"));
+            expect(e.count).toBe(count.COUNT_HUMAN);
         });
     });
 });
