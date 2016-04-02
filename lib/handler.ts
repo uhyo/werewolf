@@ -18,7 +18,7 @@ export interface EventHandler<P extends Player, E extends Effect, F extends Fiel
     handler(obj:HandlerParam<P,E,F>):void;
 }
 
-export type HandlerProducer<P extends Player, E extends Effect, F extends Field> = (e:Event)=>Array<EventHandler<P,E,F>>;
+export type HandlerProducer<P extends Player, E extends Effect, F extends Field> = {[ev:string]:Array<EventHandler<P,E,F>>};
 
 export type KeyedHandlerProducers<P extends Player, E extends Effect, F extends Field> = {[key:string]: HandlerProducer<P,E,F>};
 

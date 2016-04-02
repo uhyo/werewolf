@@ -8,7 +8,15 @@ import {Player, Players} from './player';
 import {Effect} from './effect';
 import {Field} from './field';
 
-import {HandlerParam, EventHandler, HandlerProducer, KeyedHandlerProducers, EventAction} from './handler';
+import {HandlerParam, EventHandler, HandlerProducer, KeyedHandlerProducers, EventAction, EventActions} from './handler';
+
+//rule package
+export interface Package<P extends Player, E extends Effect, F extends Field>{
+    ruleProducers?: Array<HandlerProducer<P,E,F>>;
+    playerProducers?: KeyedHandlerProducers<P,E,F>;
+    effectProducers?: KeyedHandlerProducers<P,E,F>;
+    actions?: EventActions<P,E,F>;
+}
 
 export class Game<P extends Player, E extends Effect, F extends Field>{
     private base:EventBase;
@@ -20,7 +28,7 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
     private playerProducers:KeyedHandlerProducers<P,E,F>;
     private effectProducers:KeyedHandlerProducers<P,E,F>;
     //actions
-    private actions:{[event:string]:EventAction<P,E,F>};
+    private actions:EventActions<P,E,F>;
     constructor(initField:F){
         this.players = new Players<P>();
         this.base = new EventBase();
@@ -46,6 +54,20 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
     public loadActions(acts:{[event:string]:EventAction<P,E,F>}):void{
         extend(false, this.actions, acts);
     }
+    public loadPackage(p:Package<P,E,F>):void{
+        if(p.ruleProducers){
+            this.loadRuleProducers(p.ruleProducers);
+        }
+        if(p.playerProducers){
+            this.loadPlayerProducers(p.playerProducers);
+        }
+        if(p.effectProducers){
+            this.loadEffectProducers(p.effectProducers);
+        }
+        if(p.actions){
+            this.loadActions(p.actions);
+        }
+    }
 
     //add player.
     addPlayer(p:P):void{
@@ -57,23 +79,29 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
         const handlers:Array<EventHandler<P,E,F>> = [];
         //from ruleProducers
         for(let pr of this.ruleProducers){
-            const es = pr(e);
-            handlers.push(...es);
+            const es = pr[e.type];
+            if(Array.isArray(es)){
+                handlers.push(...es);
+            }
         }
         //from playerProducers
         for(let pl of this.players.asArray()){
             const pr = this.playerProducers[pl.type];
             if(pr){
-                const es = pr(e);
-                handlers.push(...es);
+                const es = pr[e.type];
+                if(Array.isArray(es)){
+                    handlers.push(...es);
+                }
             }
         }
         //from effectProducers
         for(let ef of this.effects){
             const pr = this.effectProducers[ef.type];
             if(pr){
-                const es = pr(e);
-                handlers.push(...es);
+                const es = pr[e.type];
+                if(Array.isArray(es)){
+                    handlers.push(...es);
+                }
             }
         }
         //sort handlers

@@ -1,6 +1,8 @@
 //Event definitions
 import {Event} from '../lib';
 
+import * as count from './lib/count'
+
 //昼になるevent
 export const EVENT_PHASE_DAY = "core.phase.day";
 //夜になるevent
@@ -19,6 +21,9 @@ export const EVENT_JOB = "core.job";
 
 //死亡
 export const EVENT_DIE = "core.die";
+
+//終了カウントを問い合わせる
+export const EVENT_QUERY_COUNT = "core.query.count";
 
 //Phase event
 export function initPhaseDayEvent():Event{
@@ -107,5 +112,20 @@ export function initDieEvent(obj:{
         type: EVENT_DIE,
         on,
         reason
+    };
+}
+
+//Query
+export interface QueryCountEvent extends Event{
+    //誰
+    on: string;
+    //結果
+    count: string;
+}
+export function initQueryCountEvent(on:string):QueryCountEvent{
+    return {
+        type: EVENT_QUERY_COUNT,
+        on,
+        count: count.COUNT_HUMAN
     };
 }
