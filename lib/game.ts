@@ -75,7 +75,7 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
     }
 
     //Handle one Event.
-    handleEvent<Ev extends Event>(e:Ev):Ev{
+    runEvent<Ev extends Event>(e:Ev):Ev{
         const handlers:Array<EventHandler<P,E,F>> = [];
         //from ruleProducers
         for(let pr of this.ruleProducers){
@@ -106,12 +106,25 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
         }
         //sort handlers
         sortHandlers(handlers);
+        //0未満と0以上に分ける
+        let before:Array<EventHandler<P,E,F>>, after:Array<EventHandler<P,E,F>>, i:number;
+        const l = handlers.length;
+        for(i=0; i<l; i++){
+            const h=handlers[i];
+            if(h.priority>=0){
+                break;
+            }
+        }
+        //before(0未満): 先に実行
+        before = handlers.slice(0, i);
+        //after(0以上): 後に実行
+        after = handlers.slice(i);
 
         //途中でEventが発生したときの受け皿
         const adder = this.base.getAdder();
 
         //handlerに渡すparam
-        const param:HandlerParam<P,E,F> = {
+        let param:HandlerParam<P,E,F> = {
             adder,
             //productionではcloneしない（高速化）
             players: this.getPlayers(),
@@ -119,15 +132,9 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
             field: this.getField(),
             event: e
         };
-        for(let {handler} of handlers){
+        for(let {handler} of before){
             handler(param);
         }
-
-        return e;
-    }
-    //run one event.
-    runEvent<Ev extends Event>(e:Ev):Ev{
-        this.handleEvent(e);
 
         if(e.prevented !== true){
             //Run Game-state-modifying action here.
@@ -141,6 +148,19 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
                     event: e
                 });
             }
+        }
+
+        //actionを経たのでparamを再構成（TODO）
+        param = {
+            adder,
+            players: this.getPlayers(),
+            effects: process.env.NODE_ENV === 'production' ? this.effects : this.effects.map(e => extend(true,{},e)),
+            field: this.getField(),
+            event: e
+        };
+
+        for(let {handler} of after){
+            handler(param);
         }
         return e;
     }

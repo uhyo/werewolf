@@ -78,5 +78,13 @@ export default ({
             pl.dead_reason = event2.reason;
         }
     },
+
+    [events.EVENT_QUERY_VOTEDONE]:({field, event})=>{
+        const event2 = event as events.QueryVotedoneEvent;
+        const box = field.votebox;
+        if(box && (event2.on in box)){
+            event2.result = true;
+        }
+    },
 } as EventActions<Player,Effect,Field>);
 

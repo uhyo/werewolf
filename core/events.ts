@@ -22,8 +22,12 @@ export const EVENT_JOB = "core.job";
 //死亡
 export const EVENT_DIE = "core.die";
 
+////////// Queries
 //終了カウントを問い合わせる
 export const EVENT_QUERY_COUNT = "core.query.count";
+
+//投票終了したかどうか
+export const EVENT_QUERY_VOTEDONE = "core.query.votedone";
 
 //Phase event
 export function initPhaseDayEvent():Event{
@@ -127,5 +131,19 @@ export function initQueryCountEvent(on:string):QueryCountEvent{
         type: EVENT_QUERY_COUNT,
         on,
         count: count.COUNT_HUMAN
+    };
+}
+
+export interface QueryVotedoneEvent extends Event{
+    //誰
+    on: string;
+    //結果
+    result: boolean;
+}
+export function initQueryVotedoneEvent(on:string):QueryVotedoneEvent{
+    return {
+        type: EVENT_QUERY_VOTEDONE,
+        on,
+        result: false
     };
 }

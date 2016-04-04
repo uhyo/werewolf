@@ -100,13 +100,12 @@ describe("Events",()=>{
                 id: "id2",
                 type: "TODO"
             }));
-            game.runAllEvents({
-                type: events.EVENT_VOTE,
+            game.runAllEvents(events.initVoteEvent({
                 from: "id1",
                 to: "id2",
                 num: 1,
                 priority: 0
-            } as events.VoteEvent);
+            }));
             const v=game.getField().votebox;
             expect(v).toEqual({
                 id1: {
@@ -274,6 +273,36 @@ describe("Events",()=>{
             }));
             const e = game.runAllEvents(events.initQueryCountEvent("id1"));
             expect(e.count).toBe(count.COUNT_HUMAN);
+        });
+        describe("EVENT_QUERY_VOTEDONE",()=>{
+            beforeEach(()=>{
+                game.addPlayer(initPlayer({
+                    id: "id1",
+                    type: "TODO"
+                }));
+                game.addPlayer(initPlayer({
+                    id: "id2",
+                    type: "TODO"
+                }));
+                game.runAllEvents(events.initPhaseDayEvent());
+            });
+            it("result defaults to false",()=>{
+                expect(events.initQueryVotedoneEvent("id1").result).toBe(false);
+            });
+            it("results false if not voted",()=>{
+                const e = game.runAllEvents(events.initQueryVotedoneEvent("id1"));
+                expect(e.result).toBe(false);
+            });
+            it("result true if voted",()=>{
+                game.runAllEvents(events.initVoteEvent({
+                    from: "id1",
+                    to: "id2",
+                    num: 1,
+                    priority: 0
+                }));
+                const e = game.runAllEvents(events.initQueryVotedoneEvent("id1"));
+                expect(e.result).toBe(true);
+            });
         });
     });
 });
