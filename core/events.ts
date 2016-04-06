@@ -22,6 +22,8 @@ export const EVENT_JOB = "core.job";
 //死亡
 export const EVENT_DIE = "core.die";
 
+//勝利判定
+export const EVENT_JUDGE = "core.judge";
 ////////// Queries
 //終了カウントを問い合わせる
 export const EVENT_QUERY_COUNT = "core.query.count";
@@ -116,6 +118,24 @@ export function initDieEvent(obj:{
         type: EVENT_DIE,
         on,
         reason
+    };
+}
+
+//勝利判定
+export interface JudgeEvent extends Event{
+    //ゲーム終了か
+    end: boolean;
+    //引き分けフラグ
+    draw: boolean;
+    //勝利陣営
+    result: string;
+}
+export function initJudgeEvent():JudgeEvent{
+    return {
+        type: EVENT_JUDGE,
+        end: false,
+        draw: false,
+        result: null
     };
 }
 

@@ -31,7 +31,7 @@ describe("Roles",()=>{
                 id: "id1",
                 type: roleWerewolf.role
             }));
-            const e = game.runAllEvents(events.initQueryCountEvent("id1")) as events.QueryCountEvent;
+            const e = game.runEvent(events.initQueryCountEvent("id1")) as events.QueryCountEvent;
             expect(e.count).toBe(count.COUNT_WEREWOLF);
         });
     });

@@ -10,7 +10,7 @@ import * as events from '../../core/events';
 import * as votebox from '../../core/lib/votebox';
 import * as count from '../../core/lib/count';
 import * as diereason from '../../core/lib/diereason';
-
+import * as team from '../../core/lib/team';
 
 describe("Events",()=>{
     let game:Game<Player,Effect,Field>;
@@ -35,7 +35,7 @@ describe("Events",()=>{
             });
         });
         it("EVENT_PHASE_DAY",()=>{
-            game.runAllEvents(events.initPhaseDayEvent());
+            game.runEvent(events.initPhaseDayEvent());
             expect(game.getField()).toEqual({
                 rule,
                 phase: PHASE_DAY,
@@ -45,7 +45,7 @@ describe("Events",()=>{
         });
 
         it("EVENT_PHASE_NIGHT",()=>{
-            game.runAllEvents(events.initPhaseNightEvent());
+            game.runEvent(events.initPhaseNightEvent());
             expect(game.getField()).toEqual({
                 rule,
                 phase: PHASE_NIGHT,
@@ -63,15 +63,15 @@ describe("Events",()=>{
                 type: "TODO"
             }));
             //targetをあれする
-            game.runAllEvents(events.initJobEvent({
+            game.runEvent(events.initJobEvent({
                 from: "id1",
                 to: "id2"
             }));
-            game.runAllEvents(events.initJobEvent({
+            game.runEvent(events.initJobEvent({
                 from: "id2",
                 to: "id1"
             }));
-            game.runAllEvents(events.initPhaseNightEvent());
+            game.runEvent(events.initPhaseNightEvent());
             expect(game.getPlayers().get("id1").target).toBe(null);
             expect(game.getPlayers().get("id2").target).toBe(null);
         });
@@ -100,7 +100,7 @@ describe("Events",()=>{
                 id: "id2",
                 type: "TODO"
             }));
-            game.runAllEvents(events.initVoteEvent({
+            game.runEvent(events.initVoteEvent({
                 from: "id1",
                 to: "id2",
                 num: 1,
@@ -135,7 +135,7 @@ describe("Events",()=>{
                 id: "id2",
                 type: "TODO"
             }));
-            game.runAllEvents(events.initJobEvent({
+            game.runEvent(events.initJobEvent({
                 from: "id1",
                 to: "id2"
             }));
@@ -150,11 +150,11 @@ describe("Events",()=>{
                 id: "id2",
                 type: "TODO"
             }));
-            game.runAllEvents(events.initJobEvent({
+            game.runEvent(events.initJobEvent({
                 from: "id1",
                 to: "id2"
             }));
-            game.runAllEvents(events.initJobEvent({
+            game.runEvent(events.initJobEvent({
                 from: "id1",
                 to: "id1"
             }));
@@ -185,7 +185,7 @@ describe("Events",()=>{
                 id: "id3",
                 type: "TODO"
             }));
-            game.runAllEvents(events.initDieEvent({
+            game.runEvent(events.initDieEvent({
                 on: "id1",
                 reason: "foo"
             }));
@@ -199,11 +199,11 @@ describe("Events",()=>{
                 id: "id1",
                 type: "TODO"
             }));
-            game.runAllEvents(events.initDieEvent({
+            game.runEvent(events.initDieEvent({
                 on: "id1",
                 reason: "foo"
             }));
-            game.runAllEvents(events.initDieEvent({
+            game.runEvent(events.initDieEvent({
                 on: "id1",
                 reason: "bar"
             }));
@@ -233,36 +233,101 @@ describe("Events",()=>{
                 }));
             });
             it("Lynch result is NONE",()=>{
-                const e = game.runAllEvents(events.initLynchEvent());
+                const e = game.runEvent(events.initLynchEvent());
                 expect(e.voteResult).toBe(votebox.VOTERESULT_NONE);
             });
             it("Lynch result is CHOSEN",()=>{
                 //votes
-                game.runAllEvents(events.initVoteEvent({
+                game.runEvent(events.initVoteEvent({
                     from: "id1",
                     to: "id2",
                     num: 1,
                     priority: 0
                 }));
-                game.runAllEvents(events.initVoteEvent({
+                game.runEvent(events.initVoteEvent({
                     from: "id2",
                     to: "id1",
                     num: 1,
                     priority: 0
                 }));
-                game.runAllEvents(events.initVoteEvent({
+                game.runEvent(events.initVoteEvent({
                     from: "id3",
                     to: "id2",
                     num: 1,
                     priority: 0
                 }));
                 //lynch
-                const e = game.runAllEvents(events.initLynchEvent());
+                const e = game.runEvent(events.initLynchEvent());
                 expect(e.voteResult).toBe(votebox.VOTERESULT_CHOSEN);
                 const p = game.getPlayers().get("id2");
                 expect(p.dead).toBe(true);
                 expect(p.dead_reason).toBe(diereason.LYNCH);
             });
+        });
+    });
+    describe("Judge Event",()=>{
+        beforeEach(()=>{
+            //仮想役職の導入
+            game.loadPlayerProducers({
+                //人狼
+                "Role1": {
+                    [events.EVENT_QUERY_COUNT]:[{
+                        priority: 1,
+                        handler:({players,event:ev})=>{
+                            const ev2 = ev as events.QueryCountEvent;
+                            const pl = players.get(ev2.on);
+                            if(pl && pl.type==="Role1"){
+                                ev2.count = count.COUNT_WEREWOLF;
+                            }
+                        }
+                    }]
+                }
+            });
+            //プレイヤーの導入
+            game.addPlayer(initPlayer({
+                id: "id1",
+                type: "TODO"
+            }));
+            game.addPlayer(initPlayer({
+                id: "id2",
+                type: "TODO"
+            }));
+            game.addPlayer(initPlayer({
+                id: "id3",
+                type: "Role1"
+            }));
+        });
+        it("JudgeEvent defaults to non-end",()=>{
+            expect(events.initJudgeEvent()).toEqual({
+                type: events.EVENT_JUDGE,
+                end: false,
+                draw: false,
+                result: null
+            });
+        });
+        it("no end",()=>{
+            const e = game.runEvent(events.initJudgeEvent());
+            expect(e.end).toBe(false);
+        });
+        it("Human wins",()=>{
+            game.runEvent(events.initDieEvent({
+                on: "id3",
+                reason: "TODO"
+            }));
+            const e = game.runEvent(events.initJudgeEvent());
+            expect(e.end).toBe(true);
+            expect(e.draw).toBe(false);
+            expect(e.result).toBe(team.TEAM_HUMAN);
+        });
+        it("Werewolf wins",()=>{
+            game.runEvent(events.initDieEvent({
+                on: "id1",
+                reason: "TODO"
+            }));
+            const e = game.runEvent(events.initJudgeEvent());
+            expect(e.end).toBe(true);
+            expect(e.draw).toBe(false);
+            expect(e.result).toBe(team.TEAM_WEREWOLF);
         });
     });
     describe("Query Events",()=>{
@@ -271,7 +336,7 @@ describe("Events",()=>{
                 id: "id1",
                 type: "TODO"
             }));
-            const e = game.runAllEvents(events.initQueryCountEvent("id1"));
+            const e = game.runEvent(events.initQueryCountEvent("id1"));
             expect(e.count).toBe(count.COUNT_HUMAN);
         });
         describe("EVENT_QUERY_VOTEDONE",()=>{
@@ -284,23 +349,23 @@ describe("Events",()=>{
                     id: "id2",
                     type: "TODO"
                 }));
-                game.runAllEvents(events.initPhaseDayEvent());
+                game.runEvent(events.initPhaseDayEvent());
             });
             it("result defaults to false",()=>{
                 expect(events.initQueryVotedoneEvent("id1").result).toBe(false);
             });
             it("results false if not voted",()=>{
-                const e = game.runAllEvents(events.initQueryVotedoneEvent("id1"));
+                const e = game.runEvent(events.initQueryVotedoneEvent("id1"));
                 expect(e.result).toBe(false);
             });
             it("result true if voted",()=>{
-                game.runAllEvents(events.initVoteEvent({
+                game.runEvent(events.initVoteEvent({
                     from: "id1",
                     to: "id2",
                     num: 1,
                     priority: 0
                 }));
-                const e = game.runAllEvents(events.initQueryVotedoneEvent("id1"));
+                const e = game.runEvent(events.initQueryVotedoneEvent("id1"));
                 expect(e.result).toBe(true);
             });
         });

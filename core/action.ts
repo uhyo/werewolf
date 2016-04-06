@@ -1,5 +1,5 @@
 //Event actions
-import {Event, EventActions, EventAdder, Players} from '../lib';
+import {Event, EventActions, EventRunner, Players} from '../lib';
 import {Player} from './player';
 import {Effect} from './effect';
 import {Field, PHASE_DAY, PHASE_NIGHT} from './field';
@@ -9,6 +9,8 @@ import {VoteBox, initVoteBox, addVote, countVotes, VOTERESULT_CHOSEN, VOTERESULT
 import * as events from './events';
 
 import * as diereason from './lib/diereason';
+import * as count from './lib/count';
+import * as team from './lib/team';
 
 export default ({
     [events.EVENT_PHASE_DAY]: ({field})=>{
@@ -28,13 +30,13 @@ export default ({
     },
     [events.EVENT_MIDNIGHT]: ({})=>{
     },
-    [events.EVENT_LYNCH]: ({adder, field, event})=>{
+    [events.EVENT_LYNCH]: ({runner, field, event})=>{
         //処刑対象を決定する
         const {result, ids} = countVotes(field.votebox);
         (event as events.LynchEvent).voteResult = result;
         if(result===VOTERESULT_CHOSEN){
             //処刑対象が決定した
-            adder.addEvent<events.DieEvent>({
+            runner.addEvent<events.DieEvent>({
                 type: events.EVENT_DIE,
                 on: ids[0],
                 reason: diereason.LYNCH
@@ -78,6 +80,45 @@ export default ({
             pl.dead_reason = event2.reason;
         }
     },
+    [events.EVENT_JUDGE]:({runner, players, event})=>{
+        //勝利判定を行う
+        const event2 = event as events.JudgeEvent;
+        let c_human = 0, c_werewolf = 0, c_alive = 0;
+        //死亡していない人をカウント
+        for(let pl of players.asArray()){
+            if(pl.dead===false){
+                c_alive++;
+                const {count:c} = runner.runEvent(events.initQueryCountEvent(pl.id));
+                switch(c){
+                    case count.COUNT_HUMAN:
+                        c_human++;
+                        break;
+                    case count.COUNT_WEREWOLF:
+                        c_werewolf++;
+                        break;
+                }
+            }
+        }
+        //カウントに応じてあれする
+        if(c_alive===0){
+            //全滅は引き分け
+            event2.end = true;
+            event2.draw = true;
+        }else if(c_werewolf===0){
+            //人狼が全滅
+            event2.end = true;
+            event2.draw = false;
+            event2.result = team.TEAM_HUMAN;
+        }else if(c_human <= c_werewolf){
+            //村人が少ない
+            event2.end = true;
+            event2.draw = false;
+            event2.result = team.TEAM_WEREWOLF;
+        }else{
+            //終わらなかった
+            event2.end = false;
+        }
+    },
 
     [events.EVENT_QUERY_VOTEDONE]:({field, event})=>{
         const event2 = event as events.QueryVotedoneEvent;
@@ -86,5 +127,5 @@ export default ({
             event2.result = true;
         }
     },
-} as EventActions<Player,Effect,Field>);
+} as EventActions<Player,Effect,Field,EventRunner<Player,Effect,Field>>);
 
