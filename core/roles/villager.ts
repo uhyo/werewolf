@@ -2,10 +2,10 @@
 import {Player} from '../player';
 import {RolePackage} from '../package';
 
-export type Human = Player;
+export type Villager = Player;
 
-const ROLE_HUMAN = "human";
+const ROLE_VILLAGER = "core.villager";
 
 export default {
-    role: ROLE_HUMAN
+    role: ROLE_VILLAGER
 } as RolePackage;
