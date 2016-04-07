@@ -7,6 +7,7 @@ import * as priority from '../priority';
 import * as count from '../lib/count';
 
 import * as seerevent from './seer.event';
+import * as mediumevent from './medium.event';
 
 export interface Werewolf extends Player{
 }
@@ -27,7 +28,8 @@ export default {
                     }
                 }
             }],
-            [seerevent.EVENT_QUERY_SEER]: seerevent.seerEffect(ROLE_WEREWOLF, seerevent.SEER_RESULT_WEREWOLF)
+            [seerevent.EVENT_QUERY_SEER]: seerevent.seerEffect(ROLE_WEREWOLF, seerevent.SEER_RESULT_WEREWOLF),
+            [mediumevent.EVENT_QUERY_MEDIUM]: mediumevent.mediumEffect(ROLE_WEREWOLF, mediumevent.MEDIUM_RESULT_WEREWOLF)
         }
     }
 } as RolePackage;

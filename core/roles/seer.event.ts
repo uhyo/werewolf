@@ -9,7 +9,7 @@ export const SEER_RESULT_HUMAN = "human";
 export const SEER_RESULT_WEREWOLF = "werewolf";
 
 //占いイベント
-export const EVENT_QUERY_SEER = "core.seer.seer";
+export const EVENT_QUERY_SEER = "core.seer.query.seer";
 export interface QuerySeerEvent extends Event{
     //占い者
     from: string;

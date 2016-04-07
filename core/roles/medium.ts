@@ -1,4 +1,4 @@
-//Seer: 占い師
+//Medium: 霊能者
 import {Player} from '../player';
 import {RolePackage} from '../package';
 
@@ -6,19 +6,16 @@ import * as events from '../events';
 import * as priority from '../priority';
 import * as count from '../lib/count';
 
-import * as seerevent from './seer.event';
+import * as mediumevent from './medium.event';
 
-export interface Seer extends Player{
+export interface Medium extends Player{
 }
 
-const ROLE_SEER = "core.seer";
+const ROLE_MEDIUM = "core.medium";
 
 export default {
-    role: ROLE_SEER,
-    playerProducers: {
-        [ROLE_SEER]: {
-        }
-    }
+    role: ROLE_MEDIUM
 } as RolePackage;
+
 
 

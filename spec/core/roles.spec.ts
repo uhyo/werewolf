@@ -13,7 +13,9 @@ import * as diereason from '../../core/lib/diereason';
 
 import roleWerewolf from '../../core/roles/werewolf';
 import roleSeer from '../../core/roles/seer';
+import roleMedium from '../../core/roles/medium';
 import * as seerevent from '../../core/roles/seer.event';
+import * as mediumevent from '../../core/roles/medium.event';
 
 describe("Roles",()=>{
     let game:Game<Player,Effect,Field>;
@@ -27,6 +29,7 @@ describe("Roles",()=>{
         });
         game.loadPackage(roleWerewolf);
         game.loadPackage(roleSeer);
+        game.loadPackage(roleMedium);
     });
     describe("Werewolf",()=>{
         it("Werewolf counts as werewolf",()=>{
@@ -65,6 +68,36 @@ describe("Roles",()=>{
                     to: "id2"
                 }));
                 expect(e.result).toBe(seerevent.SEER_RESULT_WEREWOLF);
+            });
+        });
+    });
+    describe("Medium",()=>{
+        describe("EVENT_QUERY_MEDIUM",()=>{
+            it("init with MEDIUM_RESULT_HUMAN",()=>{
+                expect(mediumevent.initQueryMediumEvent({
+                    from: "id1",
+                    to: "id2"
+                })).toEqual({
+                    type: mediumevent.EVENT_QUERY_MEDIUM,
+                    from: "id1",
+                    to: "id2",
+                    result: mediumevent.MEDIUM_RESULT_HUMAN
+                });
+            });
+            it("Werewolf mediumed with result of MEDIUM_RESULT_WEREWOLF",()=>{
+                game.addPlayer(initPlayer({
+                    id: "id1",
+                    type: roleMedium.role
+                }));
+                game.addPlayer(initPlayer({
+                    id: "id2",
+                    type: roleWerewolf.role
+                }));
+                const e = game.runEvent(mediumevent.initQueryMediumEvent({
+                    from: "id1",
+                    to: "id2"
+                }));
+                expect(e.result).toBe(mediumevent.MEDIUM_RESULT_WEREWOLF);
             });
         });
     });
