@@ -42,6 +42,11 @@ export function initPhaseNightEvent():Event{
         type: EVENT_PHASE_NIGHT
     };
 }
+export function initMidnightEvent():Event{
+    return {
+        type: EVENT_MIDNIGHT
+    };
+}
 
 //投票するイベント
 export interface VoteEvent extends Event{

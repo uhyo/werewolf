@@ -107,6 +107,34 @@ describe("Roles",()=>{
             }]);
             expect(pl.shown).toBe(-1);
         });
+        describe("job selection",()=>{
+            it("get fortune result",()=>{
+                game.addPlayer(pi.initPlayer({
+                    id: "id1",
+                    type: roleSeer.role
+                }));
+                game.addPlayer(pi.initPlayer({
+                    id: "id2",
+                    type: roleWerewolf.role
+                }));
+                //夜になる
+                game.runEvent(events.initPhaseNightEvent());
+                //対象選択
+                game.runEvent(events.initJobEvent({
+                    from: "id1",
+                    to: "id2"
+                }));
+                //夜の能力実行
+                game.runEvent(events.initMidnightEvent());
+                //実行結果を見る
+                const pl = game.getPlayers().get<Seer>("id1");
+                expect(pl.results).toEqual([{
+                    to: "id2",
+                    result: seerevent.SEER_RESULT_WEREWOLF
+                }]);
+                expect(pl.shown).toBe(-1);
+            });
+        });
     });
     describe("Medium",()=>{
         describe("EVENT_QUERY_MEDIUM",()=>{
