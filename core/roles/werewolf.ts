@@ -32,5 +32,5 @@ export default {
             [mediumevent.EVENT_QUERY_MEDIUM]: mediumevent.mediumEffect(ROLE_WEREWOLF, mediumevent.MEDIUM_RESULT_WEREWOLF)
         }
     }
-} as RolePackage;
+} as RolePackage<Werewolf>;
 

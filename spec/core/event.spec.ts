@@ -1,8 +1,8 @@
 ///<reference path="../../typings/bundle.d.ts" />
 
-import {initGame, makeRule} from './init-game';
+import {initGame, makeRule, getPlayerInitiator} from './init-game';
 import {Game} from '../../lib';
-import {Player, initPlayer} from '../../core/player';
+import {Player, PlayerInitiator} from '../../core/player';
 import {Field,Rule,
         PHASE_DAY, PHASE_NIGHT} from '../../core/field';
 import {Effect} from '../../core/effect';
@@ -14,7 +14,10 @@ import * as team from '../../core/lib/team';
 
 describe("Events",()=>{
     let game:Game<Player,Effect,Field>;
+    let pi:PlayerInitiator;
     let rule:Rule = makeRule();
+    //macro
+    const initPlayer = (obj)=> pi.initPlayer(obj);
     beforeEach(()=>{
         game = initGame({
             rule: {},
@@ -22,6 +25,7 @@ describe("Events",()=>{
             day: 0,
             votebox: {}
         });
+        pi = getPlayerInitiator();
     });
     describe("Phase Events",()=>{
         it("initPhaseDayEvent",()=>{

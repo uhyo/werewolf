@@ -1,6 +1,6 @@
 //Init game for test
 import {Game} from '../../lib';
-import {Player} from '../../core/player';
+import {Player, PlayerInitiator} from '../../core/player';
 import {Rule, Field, initField} from '../../core/field';
 import {Effect} from '../../core/effect';
 
@@ -16,4 +16,8 @@ export function initGame(f:Field):Game<Player,Effect,Field>{
     game.loadActions(coreActions);
 
     return game;
+}
+
+export function getPlayerInitiator():PlayerInitiator{
+    return new PlayerInitiator();
 }

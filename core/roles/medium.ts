@@ -15,7 +15,7 @@ const ROLE_MEDIUM = "core.medium";
 
 export default {
     role: ROLE_MEDIUM
-} as RolePackage;
+} as RolePackage<Medium>;
 
 
 

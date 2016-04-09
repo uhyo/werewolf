@@ -8,4 +8,4 @@ const ROLE_VILLAGER = "core.villager";
 
 export default {
     role: ROLE_VILLAGER
-} as RolePackage;
+} as RolePackage<Villager>;

@@ -9,23 +9,32 @@ interface IEventRunner<P extends Player, Ef extends Effect, F extends Field>{
     runEvent<Ev extends Event>(e:Ev):Ev;
 }
 
-export interface HandlerParam<P extends Player, Ef extends Effect, F extends Field, Ev extends Event, R extends IEventRunner<P,Ef,F>>{
-    players:Players<P>;
+export interface HandlerParam<Pl extends Player, Ef extends Effect, F extends Field, Ev extends Event, R extends IEventRunner<Pl,Ef,F>>{
+    players:Players<Pl>;
     effects:Array<Ef>;
     field:F;
     event:Ev;
     runner:R;
 }
-export interface EventHandler<P extends Player, Ef extends Effect, F extends Field, Ev extends Event,R extends IEventRunner<P,Ef,F>>{
+
+//付加情報つきHandlerParam
+export interface HandlerParamWithPlayer<Pl extends Player, Ef extends Effect, F extends Field, Ev extends Event, R extends IEventRunner<Pl,Ef,F>> extends HandlerParam<Pl,Ef,F,Ev,R>{
+    player:Pl;
+}
+export interface HandlerParamWithEffect<Pl extends Player, Ef extends Effect, F extends Field, Ev extends Event, R extends IEventRunner<Pl,Ef,F>> extends HandlerParam<Pl,Ef,F,Ev,R>{
+    effect:Ef;
+}
+
+export interface EventHandler<Pl extends Player, Ef extends Effect, F extends Field, Ev extends Event,R extends IEventRunner<Pl,Ef,F>, Pr extends HandlerParam<Pl,Ef,F,Ev,R>>{
     //less is earlier!
     priority: number;
     //EventHandler should not modify objects other than 'event'.
-    handler(obj:HandlerParam<P,Ef,F,Ev,R>):void;
+    handler(obj:Pr):void;
 }
 
-export type HandlerProducer<P extends Player, Ef extends Effect, F extends Field, R extends IEventRunner<P,Ef,F>> = {[ev:string]:Array<EventHandler<P,Ef,F,Event,R>>};
+export type HandlerProducer<Pl extends Player, Ef extends Effect, F extends Field, R extends IEventRunner<Pl,Ef,F>, Pr extends HandlerParam<Pl,Ef,F,Event,R>> = {[ev:string]:Array<EventHandler<Pl,Ef,F,Event,R,Pr>>};
 
-export type KeyedHandlerProducers<P extends Player, E extends Effect, F extends Field, R extends IEventRunner<P,E,F>> = {[key:string]: HandlerProducer<P,E,F,R>};
+export type KeyedHandlerProducers<Pl extends Player, Ef extends Effect, F extends Field, R extends IEventRunner<Pl,Ef,F>, Pr extends HandlerParam<Pl,Ef,F,Event,R>> = {[key:string]: HandlerProducer<Pl,Ef,F,R,Pr>};
 
 export type EventAction<P extends Player, Ef extends Effect, F extends Field, Ev extends Event, R extends IEventRunner<P,Ef,F>> = (obj:HandlerParam<P,Ef,F,Ev,R>)=>void;
 

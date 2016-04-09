@@ -8,13 +8,13 @@ import {Player, Players} from './player';
 import {Effect} from './effect';
 import {Field} from './field';
 
-import {HandlerParam, EventHandler, HandlerProducer, KeyedHandlerProducers, EventAction, EventActions} from './handler';
+import {HandlerParam, HandlerParamWithPlayer, HandlerParamWithEffect, EventHandler, HandlerProducer, KeyedHandlerProducers, EventAction, EventActions} from './handler';
 
 //rule package
 export interface Package<P extends Player, E extends Effect, F extends Field>{
-    ruleProducers?: Array<HandlerProducer<P,E,F,EventRunner<P,E,F>>>;
-    playerProducers?: KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>>;
-    effectProducers?: KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>>;
+    ruleProducers?: Array<HandlerProducer<P,E,F,EventRunner<P,E,F>,HandlerParam<P,E,F,Event,EventRunner<P,E,F>>>>;
+    playerProducers?: KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>,HandlerParamWithPlayer<P,E,F,Event,EventRunner<P,E,F>>>;
+    effectProducers?: KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>,HandlerParamWithEffect<P,E,F,Event,EventRunner<P,E,F>>>;
     actions?: EventActions<P,E,F,EventRunner<P,E,F>>;
 }
 
@@ -23,9 +23,9 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
     private effects:Array<E>;
     private field:F;
     //producers
-    private ruleProducers:Array<HandlerProducer<P,E,F,EventRunner<P,E,F>>>;
-    private playerProducers:KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>>;
-    private effectProducers:KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>>;
+    private ruleProducers:Array<HandlerProducer<P,E,F,EventRunner<P,E,F>,HandlerParam<P,E,F,Event,EventRunner<P,E,F>>>>;
+    private playerProducers:KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>,HandlerParamWithPlayer<P,E,F,Event,EventRunner<P,E,F>>>;
+    private effectProducers:KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>,HandlerParamWithEffect<P,E,F,Event,EventRunner<P,E,F>>>;
     //actions
     private actions:EventActions<P,E,F,EventRunner<P,E,F>>;
     constructor(initField:F){
@@ -40,13 +40,13 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
         this.actions = {};
     }
     //producer loaders
-    public loadRuleProducers(ps:Array<HandlerProducer<P,E,F,EventRunner<P,E,F>>>):void{
+    public loadRuleProducers(ps:Array<HandlerProducer<P,E,F,EventRunner<P,E,F>,HandlerParam<P,E,F,Event,EventRunner<P,E,F>>>>):void{
         this.ruleProducers.push(...ps);
     }
-    public loadPlayerProducers(ps:KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>>):void{
+    public loadPlayerProducers(ps:KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>,HandlerParamWithPlayer<P,E,F,Event,EventRunner<P,E,F>>>):void{
         extend(false, this.playerProducers, ps);
     }
-    public loadEffectProducers(ps:KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>>):void{
+    public loadEffectProducers(ps:KeyedHandlerProducers<P,E,F,EventRunner<P,E,F>,HandlerParamWithEffect<P,E,F,Event,EventRunner<P,E,F>>>):void{
         extend(false, this.effectProducers, ps);
     }
     public loadActions(acts:{[event:string]:EventAction<P,E,F,Event,EventRunner<P,E,F>>}):void{
@@ -114,7 +114,8 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
         this.field   = safetyClone.field(field);
     }
     private runOneEvent<Ev extends Event>(e:Ev, subrunner:EventRunner<P,Ef,F>):Ev{
-        const handlers:Array<EventHandler<P,Ef,F,Ev,EventRunner<P,Ef,F>>> = [];
+        type Hn = EventHandler<P,Ef,F,Ev,EventRunner<P,Ef,F>,HandlerParam<P,Ef,F,Ev,EventRunner<P,Ef,F>>> & {player?: P; effect?: Ef};
+        const handlers:Array<Hn> = [];
         //from ruleProducers
         for(let pr of this.handlers.ruleProducers){
             const es = pr[e.type];
@@ -128,7 +129,7 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
             if(pr){
                 const es = pr[e.type];
                 if(Array.isArray(es)){
-                    handlers.push(...es);
+                    handlers.push(...(es.map(e => extend({player:safetyClone.player(pl)},e))));
                 }
             }
         }
@@ -138,14 +139,14 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
             if(pr){
                 const es = pr[e.type];
                 if(Array.isArray(es)){
-                    handlers.push(...es);
+                    handlers.push(...(es.map(e => extend({effect:safetyClone.effect(ef)},ef))));
                 }
             }
         }
         //sort handlers
         sortHandlers(handlers);
         //0未満と0以上に分ける
-        let before:Array<EventHandler<P,Ef,F,Ev,EventRunner<P,Ef,F>>>, after:Array<EventHandler<P,Ef,F,Ev,EventRunner<P,Ef,F>>>, i:number;
+        let before:Array<Hn>, after:Array<Hn>, i:number;
         const l = handlers.length;
         for(i=0; i<l; i++){
             const h=handlers[i];
@@ -158,16 +159,23 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
         //after(0以上): 後に実行
         after = handlers.slice(i);
 
-        //handlerに渡すparam
-        let param:HandlerParam<P,Ef,F,Ev,EventRunner<P,Ef,F>> = {
-            runner: subrunner,
-            //productionではcloneしない（高速化）
-            players: process.env.NODE_ENV === 'production' ? this.players : this.players.deepClone(),
-            effects: process.env.NODE_ENV === 'production' ? this.effects : this.effects.map(e => extend(true,{},e)),
-            field: process.env.NODE_ENV === 'production' ? this.field : extend(true,{},this.field),
-            event: e
-        };
-        for(let {handler} of before){
+        for(let {player, effect, handler} of before){
+            //handlerに渡すparam
+            const param:HandlerParam<P,Ef,F,Ev,EventRunner<P,Ef,F>> = {
+                runner: subrunner,
+                //productionではcloneしない（高速化）
+                players: safetyClone.players(this.players),
+                effects: safetyClone.effects(this.effects),
+                field: safetyClone.field(this.field),
+                event: e
+            };
+            //ここ型システムの敗北（めんどいだけ）
+            if(player){
+                (param as any).player = player;
+            }
+            if(effect){
+                (param as any).effect = effect;
+            }
             handler(param);
         }
 
@@ -175,26 +183,32 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
             //Run Game-state-modifying action here.
             const action = this.handlers.actions[e.type];
             if(action){
-                action({
+                const param:HandlerParam<P,Ef,F,Ev,EventRunner<P,Ef,F>> = {
                     runner: subrunner,
                     players: this.players,
                     effects: this.effects,
                     field: this.field,
                     event: e
-                });
+                };
+                action(param);
             }
         }
 
-        //actionを経たのでparamを再構成（TODO）
-        param = {
-            runner: subrunner,
-            players: safetyClone.players(this.players),
-            effects: safetyClone.effects(this.effects),
-            field: safetyClone.field(this.field),
-            event: e
-        };
 
-        for(let {handler} of after){
+        for(let {player, effect, handler} of after){
+            const param = {
+                runner: subrunner,
+                players: safetyClone.players(this.players),
+                effects: safetyClone.effects(this.effects),
+                field: safetyClone.field(this.field),
+                event: e
+            };
+            if(player){
+                (param as any).player = player;
+            }
+            if(effect){
+                (param as any).effect = effect;
+            }
             handler(param);
         }
         return e;
@@ -228,14 +242,20 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
 }
 
 //sort handlers by priority.
-function sortHandlers<P extends Player,Ef extends Effect,F extends Field, Ev extends Event>(handlers:Array<EventHandler<P,Ef,F,Ev,EventRunner<P,Ef,F>>>):void{
+function sortHandlers<P extends Player,Ef extends Effect,F extends Field, Ev extends Event>(handlers:Array<EventHandler<P,Ef,F,Ev,EventRunner<P,Ef,F>,HandlerParam<P,Ef,F,Ev,EventRunner<P,Ef,F>>>>):void{
     handlers.sort((a,b)=> a.priority - b.priority);
 }
 
 //safety clone utility
 namespace safetyClone{
+    export function player<P extends Player>(pl:P):P{
+        return process.env.NODE_ENV==='production' ? pl : extend(true,{},pl);
+    }
     export function players<P extends Player>(pl:Players<P>):Players<P>{
         return process.env.NODE_ENV==='production' ? pl : pl.deepClone();
+    }
+    export function effect<Ef extends Effect>(ef:Ef):Ef{
+        return process.env.NODE_ENV==='production' ? ef : extend(true,{},ef);
     }
     export function effects<Ef extends Effect>(efs:Array<Ef>):Array<Ef>{
         return process.env.NODE_ENV==='production' ? efs : efs.map(ef => extend(true,{},ef));

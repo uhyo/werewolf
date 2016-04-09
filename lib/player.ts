@@ -17,7 +17,7 @@ export class Players<P extends Player>{
         this.players.push(p);
         this.length = this.players.length;
     }
-    get(idx:number|string):P{
+    get<P2 extends P>(idx:number|string):P2{
         if("number"===typeof idx){
             return this.players[idx];
         }else{
@@ -25,7 +25,7 @@ export class Players<P extends Player>{
             for(let i=0; i<l; i++){
                 const p=this.players[i];
                 if(p.id===idx){
-                    return p;
+                    return p as P2;
                 }
             }
             return void 0;

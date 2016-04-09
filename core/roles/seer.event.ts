@@ -28,6 +28,23 @@ export function initQuerySeerEvent(obj:{from:string; to:string;}):QuerySeerEvent
     };
 }
 
+//占い実行イベント
+export const EVENT_GETFORTUNE = "core.seer.getfortune";
+export interface GetfortuneEvent extends Event{
+    //占い者
+    from: string;
+    //占い対象
+    to: string;
+}
+export function initGetfortuneEvent(obj:{from:string; to:string;}):GetfortuneEvent{
+    const {from, to} = obj;
+    return {
+        type: EVENT_GETFORTUNE,
+        from,
+        to
+    };
+}
+
 //utility: 占い結果が人狼になるeffect
 export function seerEffect(role:string, result:string){
     return [{
