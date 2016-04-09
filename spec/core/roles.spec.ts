@@ -137,6 +137,14 @@ describe("Roles",()=>{
         });
     });
     describe("Medium",()=>{
+        it("init with result, shown set",()=>{
+            const pl = pi.initPlayer<Medium>({
+                id: "id1",
+                type: roleMedium.role
+            });
+            expect(pl.results).toEqual([]);
+            expect(pl.shown).toBe(-1);
+        });
         describe("EVENT_QUERY_MEDIUM",()=>{
             it("init with MEDIUM_RESULT_HUMAN",()=>{
                 expect(mediumevent.initQueryMediumEvent({
@@ -164,6 +172,43 @@ describe("Roles",()=>{
                 }));
                 expect(e.result).toBe(mediumevent.MEDIUM_RESULT_WEREWOLF);
             });
+        });
+        it("EVENT_DO_MEDIUM",()=>{
+            game.addPlayer(pi.initPlayer({
+                id: "id1",
+                type: roleMedium.role
+            }));
+            game.addPlayer(pi.initPlayer({
+                id: "id2",
+                type: roleWerewolf.role
+            }));
+            game.runEvent(mediumevent.initDoMediumEvent({from:"id1", to:"id2"}));
+            const pl = game.getPlayers().get<Medium>("id1");
+            expect(pl.results).toEqual([{
+                to: "id2",
+                result: mediumevent.MEDIUM_RESULT_WEREWOLF
+            }]);
+            expect(pl.shown).toBe(-1);
+        });
+        it("hook for punish dying",()=>{
+            game.addPlayer(pi.initPlayer({
+                id: "id1",
+                type: roleMedium.role
+            }));
+            game.addPlayer(pi.initPlayer({
+                id: "id2",
+                type: roleWerewolf.role
+            }));
+            game.runEvent(events.initDieEvent({
+                on: "id2",
+                reason: diereason.LYNCH
+            }));
+            //処刑したら霊能結果が入る
+            const pl = game.getPlayers().get<Medium>("id1");
+            expect(pl.results).toEqual([{
+                to: "id2",
+                result: mediumevent.MEDIUM_RESULT_WEREWOLF
+            }]);
         });
     });
 });

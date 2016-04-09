@@ -4,9 +4,9 @@ import {Event} from '../../lib';
 import * as priority from '../priority';
 
 //霊能結果
-export const MEDIUM_RESULT_NONE  = "none";
-export const MEDIUM_RESULT_HUMAN = "human";
-export const MEDIUM_RESULT_WEREWOLF = "werewolf";
+export const MEDIUM_RESULT_NONE  = "mediumresumt.none";
+export const MEDIUM_RESULT_HUMAN = "mediumresult.human";
+export const MEDIUM_RESULT_WEREWOLF = "mediumresult.werewolf";
 
 //霊能イベント
 export const EVENT_QUERY_MEDIUM = "core.medium.query.medium";
@@ -25,6 +25,26 @@ export function initQueryMediumEvent(obj:{from:string; to:string;}):QueryMediumE
         from,
         to,
         result: MEDIUM_RESULT_HUMAN
+    };
+}
+
+//霊能実行イベント
+export const EVENT_DO_MEDIUM = "core.medium.domedium";
+export interface DoMediumEvent extends Event{
+    //誰が
+    from: string;
+    //誰を
+    to: string;
+}
+export function initDoMediumEvent(obj:{
+    from: string;
+    to: string;
+}):DoMediumEvent{
+    const {from, to} = obj;
+    return {
+        type: EVENT_DO_MEDIUM,
+        from,
+        to
     };
 }
 

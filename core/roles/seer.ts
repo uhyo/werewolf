@@ -43,7 +43,7 @@ export default {
         [seerevent.EVENT_GETFORTUNE]:({runner, players, event})=>{
             const event2 = event as seerevent.GetfortuneEvent;
             //占い者
-            const seer = players.get(event2.from) as Seer;
+            const seer = players.get<Seer>(event2.from);
             if(seer){
                 //占い結果を得る
                 const e = runner.runEvent(seerevent.initQuerySeerEvent({

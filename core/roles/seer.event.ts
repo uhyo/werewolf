@@ -4,9 +4,9 @@ import {Event} from '../../lib';
 import * as priority from '../priority';
 
 //占い結果
-export const SEER_RESULT_NONE  = "none";
-export const SEER_RESULT_HUMAN = "human";
-export const SEER_RESULT_WEREWOLF = "werewolf";
+export const SEER_RESULT_NONE  = "seeresult.none";
+export const SEER_RESULT_HUMAN = "seerresult.human";
+export const SEER_RESULT_WEREWOLF = "seerresult.werewolf";
 
 //占いイベント
 export const EVENT_QUERY_SEER = "core.seer.query.seer";
