@@ -27,6 +27,9 @@ export default ({
         for(let p of players.asArray()){
             p.target = null;
         }
+        //人狼の襲撃情報を初期化
+        field.werewolfRemains = 1;
+        field.werewolfTarget = [];
     },
     [events.EVENT_MIDNIGHT]: ({})=>{
     },

@@ -3,8 +3,11 @@
 import {initGame, makeRule, getPlayerInitiator} from './init-game';
 import {Game} from '../../lib';
 import {Player, PlayerInitiator} from '../../core/player';
-import {Field,Rule,
-        PHASE_DAY, PHASE_NIGHT} from '../../core/field';
+import {
+    initField,
+    Field,Rule,
+    PHASE_DAY, PHASE_NIGHT,
+} from '../../core/field';
 import {Effect} from '../../core/effect';
 import * as events from '../../core/events';
 import * as votebox from '../../core/lib/votebox';
@@ -29,12 +32,7 @@ describe("Roles",()=>{
                 pi.add(p);
             }
         };
-        game = initGame({
-            rule: {},
-            phase: null,
-            day: 0,
-            votebox: {}
-        });
+        game = initGame(initField(rule));
         pi = getPlayerInitiator();
         load(roleWerewolf, roleSeer, roleMedium);
     });

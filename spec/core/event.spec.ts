@@ -3,8 +3,11 @@
 import {initGame, makeRule, getPlayerInitiator} from './init-game';
 import {Game} from '../../lib';
 import {Player, PlayerInitiator} from '../../core/player';
-import {Field,Rule,
-        PHASE_DAY, PHASE_NIGHT} from '../../core/field';
+import {
+    initField,
+    Field,Rule,
+    PHASE_DAY, PHASE_NIGHT,
+} from '../../core/field';
 import {Effect} from '../../core/effect';
 import * as events from '../../core/events';
 import * as votebox from '../../core/lib/votebox';
@@ -19,12 +22,7 @@ describe("Events",()=>{
     //macro
     const initPlayer = (obj)=> pi.initPlayer(obj);
     beforeEach(()=>{
-        game = initGame({
-            rule: {},
-            phase: null,
-            day: 0,
-            votebox: {}
-        });
+        game = initGame(initField(rule));
         pi = getPlayerInitiator();
     });
     describe("Phase Events",()=>{
@@ -40,22 +38,19 @@ describe("Events",()=>{
         });
         it("EVENT_PHASE_DAY",()=>{
             game.runEvent(events.initPhaseDayEvent());
-            expect(game.getField()).toEqual({
-                rule,
-                phase: PHASE_DAY,
-                day: 1,
-                votebox: {}
-            });
+            const f = game.getField();
+            expect(f.phase).toBe(PHASE_DAY);
+            expect(f.day).toBe(1);
+            expect(f.votebox).toEqual({});
         });
 
         it("EVENT_PHASE_NIGHT",()=>{
             game.runEvent(events.initPhaseNightEvent());
-            expect(game.getField()).toEqual({
-                rule,
-                phase: PHASE_NIGHT,
-                day: 0,
-                votebox: {}
-            });
+            const f = game.getField();
+            expect(f.phase).toBe(PHASE_NIGHT);
+            expect(f.day).toBe(0);
+            expect(f.werewolfRemains).toBe(1);
+            expect(f.werewolfTarget).toEqual([]);
         });
         it("EVENT_PHASE_NIGHT resets target",()=>{
             game.addPlayer(initPlayer({
