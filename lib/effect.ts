@@ -1,4 +1,4 @@
-//Effects
+// Effects
 export interface Effect{
-    type:string;
+    type: string;
 }

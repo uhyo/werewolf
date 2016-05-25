@@ -4,9 +4,13 @@
   "description": "Are you a WEREWOLF?",
   "main": "index.js",
   "scripts": {
+    "build": "npm-run-all clean build:tsc lint",
+    "build:tsc": "tsc",
     "clean": "rimraf dist",
+    "lint": "tslint lib/**/*.ts spec/**/*.ts",
     "test": "jasmine",
     "watch": "npm-run-all --parallel watch:*",
+    "watch:lint": "watch 'tslint lib/**/*.ts spec/**/*.ts' lib/ spec/ --wait=0.3 --verbose",
     "watch:tsc": "tsc --watch",
     "watch:test": "mkdirp dist && watch 'node spec/support/run-jasmine.js' dist/ --wait=0.3 --verbose"
   },
@@ -24,6 +28,8 @@
     "mkdirp": "^0.5.1",
     "npm-run-all": "^1.7.0",
     "rimraf": "^2.5.2",
+    "tslint": "^3.10.2",
+    "typescript": "^1.8.10",
     "watch": "^0.17.1"
   }
 }
