@@ -14,6 +14,7 @@ import * as votebox from '../../core/lib/votebox';
 import * as count from '../../core/lib/count';
 import * as diereason from '../../core/lib/diereason';
 
+import roleVillager from '../../core/roles/villager';
 import roleWerewolf from '../../core/roles/werewolf';
 import roleSeer, {Seer} from '../../core/roles/seer';
 import roleMedium, {Medium} from '../../core/roles/medium';
@@ -44,6 +45,34 @@ describe('Roles', ()=>{
             }));
             const e = game.runEvent(events.initQueryCountEvent('id1'));
             expect(e.count).toBe(count.COUNT_WEREWOLF);
+        });
+        describe('Job Selection', ()=>{
+            it('decreases werewolf remains', ()=>{
+                game.addPlayer(pi.initPlayer({
+                    id: 'id1',
+                    type: roleWerewolf.role,
+                }));
+                game.addPlayer(pi.initPlayer({
+                    id: 'id2',
+                    type: roleVillager.role,
+                }));
+                // 夜にする
+                game.runEvent(events.initPhaseNightEvent());
+
+                // 選択
+                expect(game.getField().werewolfRemains).toBe(1);
+                game.runEvent(events.initJobEvent({
+                    from: 'id1',
+                    to: 'id2',
+                }));
+                // 選択済みになる
+                const f = game.getField();
+                expect(f.werewolfRemains).toBe(0);
+                expect(f.werewolfTarget).toEqual([{
+                    from: 'id1',
+                    to: 'id2',
+                }]);
+            });
         });
     });
     describe('Seer', ()=>{
