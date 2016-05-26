@@ -18,6 +18,7 @@ import roleVillager from '../../core/roles/villager';
 import roleWerewolf from '../../core/roles/werewolf';
 import roleSeer, {Seer} from '../../core/roles/seer';
 import roleMedium, {Medium} from '../../core/roles/medium';
+import * as werewolfevent from '../../core/roles/werewolf.event';
 import * as seerevent from '../../core/roles/seer.event';
 import * as mediumevent from '../../core/roles/medium.event';
 
@@ -47,6 +48,21 @@ describe('Roles', ()=>{
             expect(e.count).toBe(count.COUNT_WEREWOLF);
         });
         describe('Job Selection', ()=>{
+            it('EVENT_JOB_WEREWOLF sets wolf target', ()=>{
+                // 夜にする
+                game.runEvent(events.initPhaseNightEvent());
+                game.runEvent(werewolfevent.initJobWerewolfEvent({
+                    from: 'id1',
+                    to: 'id2',
+                }));
+                // 選択済みになる
+                const f = game.getField();
+                expect(f.werewolfRemains).toBe(0);
+                expect(f.werewolfTarget).toEqual([{
+                    from: 'id1',
+                    to: 'id2',
+                }]);
+            });
             it('decreases werewolf remains', ()=>{
                 game.addPlayer(pi.initPlayer({
                     id: 'id1',
@@ -72,6 +88,34 @@ describe('Roles', ()=>{
                     from: 'id1',
                     to: 'id2',
                 }]);
+            });
+            it('Werewolf kill players', ()=>{
+                // プレイヤーを導入
+                game.addPlayer(pi.initPlayer({
+                    id: 'id1',
+                    type: roleWerewolf.role,
+                }));
+                game.addPlayer(pi.initPlayer({
+                    id: 'id2',
+                    type: roleVillager.role,
+                }));
+                // 夜にする
+                game.runEvent(events.initPhaseNightEvent());
+
+                // 狼が対象選択
+                expect(game.getField().werewolfRemains).toBe(1);
+                game.runEvent(events.initJobEvent({
+                    from: 'id1',
+                    to: 'id2',
+                }));
+
+                // 夜
+                game.runEvent(events.initMidnightEvent());
+
+                // 死んでる！！！！！！！！！！
+                const pl = game.getPlayers().get('id2');
+                expect(pl.dead).toBe(true);
+                expect(pl.dead_reason).toBe(diereason.WEREWOLF);
             });
         });
     });

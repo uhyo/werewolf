@@ -20,7 +20,7 @@ export default ({
         //投票を初期化する
         field.votebox = initVoteBox();
     },
-    [events.EVENT_PHASE_NIGHT]: ({players,field})=>{
+    [events.EVENT_PHASE_NIGHT]: ({players, field})=>{
         //夜になる
         field.phase = PHASE_NIGHT;
         //夜投票を全部初期化する
@@ -31,7 +31,15 @@ export default ({
         field.werewolfRemains = 1;
         field.werewolfTarget = [];
     },
-    [events.EVENT_MIDNIGHT]: ({})=>{
+    [events.EVENT_MIDNIGHT]: ({runner, players, field})=>{
+        // 真夜中の処理：人狼に襲われて死亡する
+        for(let {to} of field.werewolfTarget){
+            // fromさんがtoさんをころしちゃうぞ
+            runner.addEvent(events.initDieEvent({
+                on: to,
+                reason: diereason.WEREWOLF,
+            }));
+        }
     },
     [events.EVENT_LYNCH]: ({runner, field, event})=>{
         //処刑対象を決定する
@@ -39,11 +47,10 @@ export default ({
         (event as events.LynchEvent).voteResult = result;
         if(result===VOTERESULT_CHOSEN){
             //処刑対象が決定した
-            runner.addEvent<events.DieEvent>({
-                type: events.EVENT_DIE,
+            runner.addEvent(events.initDieEvent({
                 on: ids[0],
                 reason: diereason.LYNCH
-            });
+            }));
         }else if(result===VOTERESULT_MULTI){
             //複数いた(TODO)
         }else if(result===VOTERESULT_NONE){
