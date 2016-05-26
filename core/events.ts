@@ -1,174 +1,174 @@
-//Event definitions
+// Event definitions
 import {Event} from '../lib';
 
-import * as count from './lib/count'
+import * as count from './lib/count';
 
-//昼になるevent
-export const EVENT_PHASE_DAY = "core.phase.day";
-//夜になるevent
-export const EVENT_PHASE_NIGHT = "core.phase.night";
-//夜の処理を実行するevent
-export const EVENT_MIDNIGHT = "core.midnight";
+// 昼になるevent
+export const EVENT_PHASE_DAY = 'core.phase.day';
+// 夜になるevent
+export const EVENT_PHASE_NIGHT = 'core.phase.night';
+// 夜の処理を実行するevent
+export const EVENT_MIDNIGHT = 'core.midnight';
 
-//処刑を実行するevent
-export const EVENT_LYNCH = "core.lynch";
+// 処刑を実行するevent
+export const EVENT_LYNCH = 'core.lynch';
 
-//処刑投票
-export const EVENT_VOTE = "core.vote";
+// 処刑投票
+export const EVENT_VOTE = 'core.vote';
 
-//夜の投票
-export const EVENT_JOB = "core.job";
+// 夜の投票
+export const EVENT_JOB = 'core.job';
 
-//死亡
-export const EVENT_DIE = "core.die";
+// 死亡
+export const EVENT_DIE = 'core.die';
 
-//勝利判定
-export const EVENT_JUDGE = "core.judge";
+// 勝利判定
+export const EVENT_JUDGE = 'core.judge';
 ////////// Queries
-//終了カウントを問い合わせる
-export const EVENT_QUERY_COUNT = "core.query.count";
+// 終了カウントを問い合わせる
+export const EVENT_QUERY_COUNT = 'core.query.count';
 
-//投票終了したかどうか
-export const EVENT_QUERY_VOTEDONE = "core.query.votedone";
+// 投票終了したかどうか
+export const EVENT_QUERY_VOTEDONE = 'core.query.votedone';
 
-//Phase event
-export function initPhaseDayEvent():Event{
+// Phase event
+export function initPhaseDayEvent(): Event{
     return {
-        type: EVENT_PHASE_DAY
+        type: EVENT_PHASE_DAY,
     };
 }
-export function initPhaseNightEvent():Event{
+export function initPhaseNightEvent(): Event{
     return {
-        type: EVENT_PHASE_NIGHT
+        type: EVENT_PHASE_NIGHT,
     };
 }
-export function initMidnightEvent():Event{
+export function initMidnightEvent(): Event{
     return {
-        type: EVENT_MIDNIGHT
+        type: EVENT_MIDNIGHT,
     };
 }
 
-//投票するイベント
+// 投票するイベント
 export interface VoteEvent extends Event{
-    //投票者
+    // 投票者
     from: string;
-    //投票先
+    // 投票先
     to: string;
-    //票数
+    // 票数
     num: number;
-    //優先度
+    // 優先度
     priority: number;
 }
-export function initVoteEvent(obj:{
+export function initVoteEvent(obj: {
     from: string;
     to: string;
     num: number;
     priority: number;
-}):VoteEvent{
+}): VoteEvent{
     const {from, to, num, priority} = obj;
     return {
         type: EVENT_VOTE,
         from,
         to,
         num,
-        priority
+        priority,
     };
 }
 
-//処刑をするイベント
+// 処刑をするイベント
 export interface LynchEvent extends Event{
-    //投票結果がどうなったか
+    // 投票結果がどうなったか
     voteResult?: string;
 }
-export function initLynchEvent():LynchEvent{
+export function initLynchEvent(): LynchEvent{
     return {
         type: EVENT_LYNCH,
-        voteResult: null
+        voteResult: null,
     };
 }
 
-//夜投票のイベント
+// 夜投票のイベント
 export interface JobEvent extends Event{
-    //投票者
+    // 投票者
     from: string;
-    //対象
+    // 対象
     to: string;
 }
-export function initJobEvent(obj:{
+export function initJobEvent(obj: {
     from: string;
     to: string;
-}):JobEvent{
+}): JobEvent{
     const {from, to} = obj;
     return {
         type: EVENT_JOB,
         from,
-        to
+        to,
     };
 }
 
 
-//死亡するイベント
+// 死亡するイベント
 export interface DieEvent extends Event{
-    //誰が死亡するか
+    // 誰が死亡するか
     on: string;
-    //死因
+    // 死因
     reason: string;
 }
-export function initDieEvent(obj:{
+export function initDieEvent(obj: {
     on: string;
     reason: string;
-}):DieEvent{
+}): DieEvent{
     const {on, reason} = obj;
     return {
         type: EVENT_DIE,
         on,
-        reason
+        reason,
     };
 }
 
-//勝利判定
+// 勝利判定
 export interface JudgeEvent extends Event{
-    //ゲーム終了か
+    // ゲーム終了か
     end: boolean;
-    //引き分けフラグ
+    // 引き分けフラグ
     draw: boolean;
-    //勝利陣営
+    // 勝利陣営
     result: string;
 }
-export function initJudgeEvent():JudgeEvent{
+export function initJudgeEvent(): JudgeEvent{
     return {
         type: EVENT_JUDGE,
         end: false,
         draw: false,
-        result: null
+        result: null,
     };
 }
 
-//Query
+// Query
 export interface QueryCountEvent extends Event{
-    //誰
+    // 誰
     on: string;
-    //結果
+    // 結果
     count: string;
 }
-export function initQueryCountEvent(on:string):QueryCountEvent{
+export function initQueryCountEvent(on: string): QueryCountEvent{
     return {
         type: EVENT_QUERY_COUNT,
         on,
-        count: count.COUNT_HUMAN
+        count: count.COUNT_HUMAN,
     };
 }
 
 export interface QueryVotedoneEvent extends Event{
-    //誰
+    // 誰
     on: string;
-    //結果
+    // 結果
     result: boolean;
 }
-export function initQueryVotedoneEvent(on:string):QueryVotedoneEvent{
+export function initQueryVotedoneEvent(on: string): QueryVotedoneEvent{
     return {
         type: EVENT_QUERY_VOTEDONE,
         on,
-        result: false
+        result: false,
     };
 }
