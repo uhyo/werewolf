@@ -1,6 +1,7 @@
 // Seer Event
 import {Event} from '../../lib';
 
+import {EventHandler} from '../handler';
 import * as priority from '../priority';
 
 // 占い結果
@@ -46,7 +47,7 @@ export function initGetfortuneEvent(obj: {from: string; to: string}): Getfortune
 }
 
 // utility: 占い結果が人狼になるeffect
-export function seerEffect(role: string, result: string){
+export function seerEffect(role: string, result: string): Array<EventHandler>{
     return [{
         priority: priority.QUERY_RESULT_INIT,
         handler: ({players, event})=>{

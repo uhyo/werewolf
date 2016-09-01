@@ -2,7 +2,8 @@
 
 import {initGame, makeRule, getPlayerInitiator} from './init-game';
 import {Game} from '../../lib';
-import {Player, PlayerInitiator} from '../../core/player';
+import {Player, PlayerInit, PlayerInitiator} from '../../core/player';
+import {RolePackage} from '../../core/package';
 import {
     initField,
     Field, Rule,
@@ -26,9 +27,9 @@ describe('Roles', ()=>{
     let game: Game<Player, Effect, Field>;
     let pi: PlayerInitiator;
     let rule: Rule = makeRule();
-    const initPlayer = (obj) => pi.initPlayer(obj);
+    const initPlayer = (obj: PlayerInit) => pi.initPlayer(obj);
     beforeEach(()=>{
-        const load = (...ps)=>{
+        const load = (...ps: Array<RolePackage<Player>>)=>{
             for (let p of ps) {
                 game.loadPackage(p);
                 pi.add(p);
@@ -114,8 +115,8 @@ describe('Roles', ()=>{
 
                 // 死んでる！！！！！！！！！！
                 const pl = game.getPlayers().get('id2');
-                expect(pl.dead).toBe(true);
-                expect(pl.dead_reason).toBe(diereason.WEREWOLF);
+                expect(pl!.dead).toBe(true);
+                expect(pl!.dead_reason).toBe(diereason.WEREWOLF);
             });
         });
     });
@@ -172,11 +173,11 @@ describe('Roles', ()=>{
             expect(e.from).toBe('id1');
             expect(e.to).toBe('id2');
             const pl = game.getPlayers().get<Seer>('id1');
-            expect(pl.results).toEqual([{
+            expect(pl!.results).toEqual([{
                 to: 'id2',
                 result: seerevent.SEER_RESULT_WEREWOLF,
             }]);
-            expect(pl.shown).toBe(-1);
+            expect(pl!.shown).toBe(-1);
         });
         describe('job selection', ()=>{
             it('get fortune result', ()=>{
@@ -199,11 +200,11 @@ describe('Roles', ()=>{
                 game.runEvent(events.initMidnightEvent());
                 // 実行結果を見る
                 const pl = game.getPlayers().get<Seer>('id1');
-                expect(pl.results).toEqual([{
+                expect(pl!.results).toEqual([{
                     to: 'id2',
                     result: seerevent.SEER_RESULT_WEREWOLF,
                 }]);
-                expect(pl.shown).toBe(-1);
+                expect(pl!.shown).toBe(-1);
             });
         });
     });
@@ -255,11 +256,11 @@ describe('Roles', ()=>{
             }));
             game.runEvent(mediumevent.initDoMediumEvent({from: 'id1', to: 'id2'}));
             const pl = game.getPlayers().get<Medium>('id1');
-            expect(pl.results).toEqual([{
+            expect(pl!.results).toEqual([{
                 to: 'id2',
                 result: mediumevent.MEDIUM_RESULT_WEREWOLF,
             }]);
-            expect(pl.shown).toBe(-1);
+            expect(pl!.shown).toBe(-1);
         });
         it('hook for punish dying', ()=>{
             game.addPlayer(pi.initPlayer({
@@ -276,7 +277,7 @@ describe('Roles', ()=>{
             }));
             // 処刑したら霊能結果が入る
             const pl = game.getPlayers().get<Medium>('id1');
-            expect(pl.results).toEqual([{
+            expect(pl!.results).toEqual([{
                 to: 'id2',
                 result: mediumevent.MEDIUM_RESULT_WEREWOLF,
             }]);

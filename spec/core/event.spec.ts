@@ -2,7 +2,7 @@
 
 import {initGame, makeRule, getPlayerInitiator} from './init-game';
 import {Game} from '../../lib';
-import {Player, PlayerInitiator} from '../../core/player';
+import {Player, PlayerInit, PlayerInitiator} from '../../core/player';
 import {
     initField,
     Field, Rule,
@@ -20,7 +20,7 @@ describe('Events', ()=>{
     let pi: PlayerInitiator;
     let rule: Rule = makeRule();
     // macro
-    const initPlayer = (obj)=> pi.initPlayer(obj);
+    const initPlayer = (obj: PlayerInit)=> pi.initPlayer(obj);
     beforeEach(()=>{
         game = initGame(initField(rule));
         pi = getPlayerInitiator();
@@ -71,8 +71,8 @@ describe('Events', ()=>{
                 to: 'id1',
             }));
             game.runEvent(events.initPhaseNightEvent());
-            expect(game.getPlayers().get('id1').target).toBe(null);
-            expect(game.getPlayers().get('id2').target).toBe(null);
+            expect(game.getPlayers().get('id1')!.target).toBe(undefined);
+            expect(game.getPlayers().get('id2')!.target).toBe(undefined);
         });
     });
     describe('Voting Events', ()=>{
@@ -138,7 +138,7 @@ describe('Events', ()=>{
                 from: 'id1',
                 to: 'id2',
             }));
-            expect(game.getPlayers().get('id1').target).toBe('id2');
+            expect(game.getPlayers().get('id1')!.target).toBe('id2');
         });
         it('EVENT_JOB overrides target', ()=>{
             game.addPlayer(initPlayer({
@@ -157,7 +157,7 @@ describe('Events', ()=>{
                 from: 'id1',
                 to: 'id1',
             }));
-            expect(game.getPlayers().get('id1').target).toBe('id1');
+            expect(game.getPlayers().get('id1')!.target).toBe('id1');
         });
     });
     describe('Die Event', ()=>{
@@ -188,10 +188,10 @@ describe('Events', ()=>{
                 on: 'id1',
                 reason: 'foo',
             }));
-            expect(game.getPlayers().get('id1').dead).toBe(true);
-            expect(game.getPlayers().get('id1').dead_reason).toBe('foo');
-            expect(game.getPlayers().get('id2').dead).toBe(false);
-            expect(game.getPlayers().get('id3').dead).toBe(false);
+            expect(game.getPlayers().get('id1')!.dead).toBe(true);
+            expect(game.getPlayers().get('id1')!.dead_reason).toBe('foo');
+            expect(game.getPlayers().get('id2')!.dead).toBe(false);
+            expect(game.getPlayers().get('id3')!.dead).toBe(false);
         });
         it("EVENT_DIE don't override reason", ()=>{
             game.addPlayer(initPlayer({
@@ -206,14 +206,14 @@ describe('Events', ()=>{
                 on: 'id1',
                 reason: 'bar',
             }));
-            expect(game.getPlayers().get('id1').dead_reason).toBe('foo');
+            expect(game.getPlayers().get('id1')!.dead_reason).toBe('foo');
         });
     });
     describe('Lynch Events', ()=>{
         it('initLynchEvent', ()=>{
             expect(events.initLynchEvent()).toEqual({
                 type: events.EVENT_LYNCH,
-                voteResult: null,
+                voteResult: undefined,
             });
         });
         describe('EVENT_LYNCH', ()=>{
@@ -259,8 +259,8 @@ describe('Events', ()=>{
                 const e = game.runEvent(events.initLynchEvent());
                 expect(e.voteResult).toBe(votebox.VOTERESULT_CHOSEN);
                 const p = game.getPlayers().get('id2');
-                expect(p.dead).toBe(true);
-                expect(p.dead_reason).toBe(diereason.LYNCH);
+                expect(p!.dead).toBe(true);
+                expect(p!.dead_reason).toBe(diereason.LYNCH);
             });
         });
     });
@@ -301,7 +301,7 @@ describe('Events', ()=>{
                 type: events.EVENT_JUDGE,
                 end: false,
                 draw: false,
-                result: null,
+                result: undefined,
             });
         });
         it('no end', ()=>{

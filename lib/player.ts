@@ -17,9 +17,9 @@ export class Players<P extends Player>{
         this.players.push(p);
         this.length = this.players.length;
     }
-    get<P2 extends P>(idx: number|string): P2{
+    get<P2 extends P>(idx: number|string): P2 | undefined{
         if ('number' === typeof idx){
-            return this.players[idx];
+            return this.players[idx] as P2;
         }else{
             const l = this.players.length;
             for (let i = 0; i < l; i++){

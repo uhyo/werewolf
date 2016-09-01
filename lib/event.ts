@@ -17,7 +17,7 @@ export class EventBase{
         this.queue.push(e);
     }
     // It handles Events added on the way.
-    public iterateEvent(): Event{
+    public iterateEvent(): Event | undefined{
         return this.queue.shift();
     }
 

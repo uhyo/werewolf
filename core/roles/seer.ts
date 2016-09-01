@@ -1,6 +1,6 @@
 // Seer: 占い師
 import {Player} from '../player';
-import {RolePackage} from '../package';
+import {initPackage} from '../package';
 
 import * as events from '../events';
 import * as priority from '../priority';
@@ -15,7 +15,7 @@ export interface Seer extends Player{
 
 const ROLE_SEER = 'core.seer';
 
-export default {
+export default initPackage<Seer>({
     role: ROLE_SEER,
     roleInit(pl){
         pl.results = [];
@@ -28,7 +28,7 @@ export default {
                 priority: priority.MIDNIGHT_STANDARD,
                 handler: ({runner, player, players, event})=>{
                     // 夜の役職実行
-                    if (players.get(player.target)){
+                    if (player.target && players.get(player.target)){
                         // 対象が存在
                         runner.addEvent(seerevent.initGetfortuneEvent({
                             from: player.id,
@@ -57,6 +57,6 @@ export default {
             }
         },
     },
-} as RolePackage<Seer>;
+});
 
 

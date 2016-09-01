@@ -2,6 +2,9 @@
 import {Event} from '../../lib';
 
 import * as priority from '../priority';
+import {
+    EventHandler,
+} from '../handler';
 
 // 霊能結果
 export const MEDIUM_RESULT_NONE  = 'mediumresumt.none';
@@ -49,7 +52,7 @@ export function initDoMediumEvent(obj: {
 }
 
 // utility: 霊能結果を設定するeffect
-export function mediumEffect(role: string, result: string){
+export function mediumEffect(role: string, result: string): Array<EventHandler>{
     return [{
         priority: priority.QUERY_RESULT_INIT,
         handler: ({players, event})=>{

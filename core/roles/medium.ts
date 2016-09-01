@@ -1,6 +1,6 @@
 // Medium: 霊能者
 import {Player} from '../player';
-import {RolePackage} from '../package';
+import {initPackage} from '../package';
 
 import * as events from '../events';
 import * as priority from '../priority';
@@ -19,7 +19,7 @@ export interface Medium extends Player{
 
 const ROLE_MEDIUM = 'core.medium';
 
-export default {
+export default initPackage<Medium>({
     role: ROLE_MEDIUM,
     roleInit(pl){
         pl.results = [];
@@ -65,7 +65,7 @@ export default {
             }
         },
     },
-} as RolePackage<Medium>;
+});
 
 
 

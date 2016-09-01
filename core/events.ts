@@ -78,12 +78,12 @@ export function initVoteEvent(obj: {
 // 処刑をするイベント
 export interface LynchEvent extends Event{
     // 投票結果がどうなったか
-    voteResult?: string;
+    voteResult: string | undefined;
 }
 export function initLynchEvent(): LynchEvent{
     return {
         type: EVENT_LYNCH,
-        voteResult: null,
+        voteResult: undefined,
     };
 }
 
@@ -133,14 +133,14 @@ export interface JudgeEvent extends Event{
     // 引き分けフラグ
     draw: boolean;
     // 勝利陣営
-    result: string;
+    result: string | undefined;
 }
 export function initJudgeEvent(): JudgeEvent{
     return {
         type: EVENT_JUDGE,
         end: false,
         draw: false,
-        result: null,
+        result: undefined,
     };
 }
 

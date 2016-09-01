@@ -45,7 +45,7 @@ export function countVotes(box: VoteBox): VoteResult{
         // numはsum, priorityはmaxをとる
         if (cnt[to] == null){
             cnt[to] = {
-                from: null,
+                from: 'DUMMY',
                 to,
                 num,
                 priority,
@@ -75,7 +75,7 @@ export function countVotes(box: VoteBox): VoteResult{
     }else{
         // 複数人いるかもしれない
         const top = cnt[ids[0]];
-        const chosen = [];
+        const chosen: Array<string> = [];
         for (let id of ids){
             const c = cnt[id];
             if (c.num===top.num && c.priority===top.priority){

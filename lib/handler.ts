@@ -5,7 +5,7 @@ import {Effect} from './effect';
 import {Field} from './field';
 
 // EventRunnerとは……
-interface IEventRunner<P extends Player, Ef extends Effect, F extends Field>{
+export interface IEventRunner<_P extends Player, _Ef extends Effect, _F extends Field>{
     runEvent<Ev extends Event>(e: Ev): Ev;
 }
 

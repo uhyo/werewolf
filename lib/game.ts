@@ -12,10 +12,10 @@ import {HandlerParam, HandlerParamWithPlayer, HandlerParamWithEffect, EventHandl
 
 // rule package
 export interface Package<P extends Player, E extends Effect, F extends Field>{
-    ruleProducers?: Array<HandlerProducer<P, E, F, EventRunner<P, E, F>, HandlerParam<P, E, F, Event, EventRunner<P, E, F>>>>;
-    playerProducers?: KeyedHandlerProducers<P, E, F, EventRunner<P, E, F>, HandlerParamWithPlayer<P, E, F, Event, EventRunner<P, E, F>>>;
-    effectProducers?: KeyedHandlerProducers<P, E, F, EventRunner<P, E, F>, HandlerParamWithEffect<P, E, F, Event, EventRunner<P, E, F>>>;
-    actions?: EventActions<P, E, F, EventRunner<P, E, F>>;
+    ruleProducers: Array<HandlerProducer<P, E, F, EventRunner<P, E, F>, HandlerParam<P, E, F, Event, EventRunner<P, E, F>>>>;
+    playerProducers: KeyedHandlerProducers<P, E, F, EventRunner<P, E, F>, HandlerParamWithPlayer<P, E, F, Event, EventRunner<P, E, F>>>;
+    effectProducers: KeyedHandlerProducers<P, E, F, EventRunner<P, E, F>, HandlerParamWithEffect<P, E, F, Event, EventRunner<P, E, F>>>;
+    actions: EventActions<P, E, F, EventRunner<P, E, F>>;
 }
 
 export class Game<P extends Player, E extends Effect, F extends Field>{
@@ -106,7 +106,7 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
     private players: Players<P>;
     private effects: Array<Ef>;
     private field: F;
-    constructor(players: Players<P>, effects: Array<Ef>, field: F, private handlers: Package<P, Ef, F>, private base: EventBase, private resultObject: {
+    constructor(players: Players<P>, effects: Array<Ef>, field: F, private handlers: Package<P, Ef, F>, private base: EventBase | null, private resultObject?: {
         players?: Players<P>;
         effects?: Array<Ef>;
         field?: F;
@@ -141,7 +141,7 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
             if (pr){
                 const es = pr[e.type];
                 if (Array.isArray(es)){
-                    handlers.push(...(es.map(e => extend({effect: safetyClone.effect(ef)}, ef))));
+                    handlers.push(...(es.map(()=> extend({effect: safetyClone.effect(ef)}, ef))));
                 }
             }
         }
@@ -222,7 +222,7 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
         const base = new EventBase();
         base.addEvent(e);
         const subrunner = this.branchRunner(base);
-        let ev: Event;
+        let ev: Event | undefined;
         while (ev = base.iterateEvent()){
             this.runOneEvent(ev, subrunner);
         }
@@ -235,13 +235,17 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
         return e;
     }
     addEvent<Ev extends Event>(e: Ev): void{
-        this.base.addEvent(e);
+        const base = this.base;
+        if (base == null){
+            throw new Error('Cannot add an event to a null-based EventRunner');
+        }
+        base.addEvent(e);
     }
     // get result
 
     private branchRunner(base: EventBase): EventRunner<P, Ef, F>{
         // baseを通して自身に干渉できる
-        return new EventRunner(this.players, this.effects, this.field, this.handlers, base, null);
+        return new EventRunner(this.players, this.effects, this.field, this.handlers, base, void 0);
     }
 }
 

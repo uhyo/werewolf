@@ -1,10 +1,10 @@
 // Event actions
-import {Event, EventActions, EventRunner, Players} from '../lib';
+import {EventActions, EventRunner} from '../lib';
 import {Player} from './player';
 import {Effect} from './effect';
 import {Field, PHASE_DAY, PHASE_NIGHT} from './field';
 
-import {VoteBox, initVoteBox, addVote, countVotes, VOTERESULT_CHOSEN, VOTERESULT_MULTI, VOTERESULT_NONE} from './lib/votebox';
+import {initVoteBox, addVote, countVotes, VOTERESULT_CHOSEN, VOTERESULT_MULTI, VOTERESULT_NONE} from './lib/votebox';
 
 import * as events from './events';
 
@@ -25,7 +25,7 @@ export default ({
         field.phase = PHASE_NIGHT;
         // 夜投票を全部初期化する
         for (let p of players.asArray()){
-            p.target = null;
+            p.target = void 0;
         }
         // 人狼の襲撃情報を初期化
         field.werewolfRemains = 1;
