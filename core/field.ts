@@ -1,6 +1,9 @@
 import * as lib from '../lib';
 
 import {VoteBox} from './lib/votebox';
+import {
+    Log,
+} from './logs';
 
 export interface Rule{
 }
@@ -15,6 +18,9 @@ export interface Field extends lib.Field{
     // ゲーム状態
     phase: string;
     day: number;
+
+    // ログ補完場所
+    logs: Array<Log>;
 
     // 昼
     votebox: VoteBox;
@@ -35,6 +41,7 @@ export function initField(rule: Rule): Field{
     return {
         rule,
         phase: PHASE_NIGHT,
+        logs: [],
         day: 0,
         votebox: {},
         werewolfRemains: 0,

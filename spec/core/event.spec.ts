@@ -9,6 +9,7 @@ import {
     PHASE_DAY, PHASE_NIGHT,
 } from '../../core/field';
 import {Effect} from '../../core/effect';
+import * as logs from '../../core/logs';
 import * as events from '../../core/events';
 import * as votebox from '../../core/lib/votebox';
 import * as count from '../../core/lib/count';
@@ -42,6 +43,13 @@ describe('Events', ()=>{
             expect(f.phase).toBe(PHASE_DAY);
             expect(f.day).toBe(1);
             expect(f.votebox).toEqual({});
+            expect(f.logs).toEqual([
+                {
+                    type: logs.LOG_PHASE_TRANSITION,
+                    day: 1,
+                    phase: 'day',
+                },
+            ]);
         });
 
         it('EVENT_PHASE_NIGHT', ()=>{
@@ -51,6 +59,13 @@ describe('Events', ()=>{
             expect(f.day).toBe(0);
             expect(f.werewolfRemains).toBe(1);
             expect(f.werewolfTarget).toEqual([]);
+            expect(f.logs).toEqual([
+                {
+                    type: logs.LOG_PHASE_TRANSITION,
+                    day: 0,
+                    phase: 'night',
+                },
+            ]);
         });
         it('EVENT_PHASE_NIGHT resets target', ()=>{
             game.addPlayer(initPlayer({

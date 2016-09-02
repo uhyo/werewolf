@@ -3,6 +3,9 @@ import {EventActions, EventRunner} from '../lib';
 import {Player} from './player';
 import {Effect} from './effect';
 import {Field, PHASE_DAY, PHASE_NIGHT} from './field';
+import {
+    initLogPhaseTransition,
+} from './logs';
 
 import {initVoteBox, addVote, countVotes, VOTERESULT_CHOSEN, VOTERESULT_MULTI, VOTERESULT_NONE} from './lib/votebox';
 
@@ -19,6 +22,8 @@ export default ({
         field.day++;
         // 投票を初期化する
         field.votebox = initVoteBox();
+        // ログを出す
+        field.logs.push(initLogPhaseTransition(field.day, 'day'));
     },
     [events.EVENT_PHASE_NIGHT]: ({players, field})=>{
         // 夜になる
@@ -30,6 +35,8 @@ export default ({
         // 人狼の襲撃情報を初期化
         field.werewolfRemains = 1;
         field.werewolfTarget = [];
+        // ログを出す
+        field.logs.push(initLogPhaseTransition(field.day, 'night'));
     },
     [events.EVENT_MIDNIGHT]: ({runner, players, field})=>{
         // 真夜中の処理：人狼に襲われて死亡する
@@ -38,6 +45,7 @@ export default ({
             runner.addEvent(events.initDieEvent({
                 on: to,
                 reason: diereason.WEREWOLF,
+
             }));
         }
     },
