@@ -9,7 +9,8 @@ import {
     Field, Rule,
     PHASE_DAY, PHASE_NIGHT,
 } from '../../core/field';
-import {Effect} from '../../core/effect';
+import * as effect from '../../core/effect';
+type Effect = effect.Effect;
 import * as events from '../../core/events';
 import * as votebox from '../../core/lib/votebox';
 import * as count from '../../core/lib/count';
@@ -49,6 +50,36 @@ describe('Roles', ()=>{
             expect(e.count).toBe(count.COUNT_WEREWOLF);
         });
         describe('Job Selection', ()=>{
+            it('EVENT_PHASE_NIGHT initializes wolf choice', ()=>{
+                game.addPlayer(pi.initPlayer({
+                    id: 'id1',
+                    type: roleWerewolf.role,
+                }));
+                game.addPlayer(pi.initPlayer({
+                    id: 'id2',
+                    type: roleVillager.role,
+                }));
+                // 夜にする
+                game.runEvent(events.initPhaseNightEvent());
+
+                const efs = game.getEffects();
+                expect(efs.length).toBe(1);
+                const e = efs.get(0) as effect.ChoiceEffect;
+                expect(e.type).toBe(effect.EFFECT_CHOICE);
+                expect(e.on).toBe('id1');
+                expect(e.choice_kind).toBe(werewolfevent.CHOICE_WEREWOLF);
+                expect(e.value).toBe(undefined);
+                expect(e.options).toEqual([{
+                    label: 'id1',
+                    label_kind: 'player',
+                    value: 'id1',
+                }, {
+                    label: 'id2',
+                    label_kind: 'player',
+                    value: 'id2',
+                }]);
+
+            });
             it('EVENT_JOB_WEREWOLF sets wolf target', ()=>{
                 // 夜にする
                 game.runEvent(events.initPhaseNightEvent());
@@ -78,11 +109,38 @@ describe('Roles', ()=>{
 
                 // 選択
                 expect(game.getField().werewolfRemains).toBe(1);
-                game.runEvent(events.initJobEvent({
+                game.runEvent(werewolfevent.initJobWerewolfEvent({
                     from: 'id1',
                     to: 'id2',
                 }));
                 // 選択済みになる
+                const f = game.getField();
+                expect(f.werewolfRemains).toBe(0);
+                expect(f.werewolfTarget).toEqual([{
+                    from: 'id1',
+                    to: 'id2',
+                }]);
+            });
+            it('job of werewolf', ()=>{
+                game.addPlayer(pi.initPlayer({
+                    id: 'id1',
+                    type: roleWerewolf.role,
+                }));
+                game.addPlayer(pi.initPlayer({
+                    id: 'id2',
+                    type: roleVillager.role,
+                }));
+                // 夜にする
+                game.runEvent(events.initPhaseNightEvent());
+                // 狼のchoice
+                const e = game.getEffects().ofType(effect.EFFECT_CHOICE)[0] as effect.ChoiceEffect;
+                // このchoiceを発動する
+                game.runEvent(events.initChoiceEvent({
+                    from: 'id1',
+                    choice_id: e.id,
+                    value: 'id2',
+                }));
+                // 人狼の対象が選択された
                 const f = game.getField();
                 expect(f.werewolfRemains).toBe(0);
                 expect(f.werewolfTarget).toEqual([{
@@ -105,9 +163,12 @@ describe('Roles', ()=>{
 
                 // 狼が対象選択
                 expect(game.getField().werewolfRemains).toBe(1);
-                game.runEvent(events.initJobEvent({
+                const e = game.getEffects().ofType(effect.EFFECT_CHOICE)[0] as effect.ChoiceEffect;
+                // このchoiceを発動する
+                game.runEvent(events.initChoiceEvent({
                     from: 'id1',
-                    to: 'id2',
+                    choice_id: e.id,
+                    value: 'id2',
                 }));
 
                 // 夜
@@ -180,6 +241,34 @@ describe('Roles', ()=>{
             expect(pl!.shown).toBe(-1);
         });
         describe('job selection', ()=>{
+            it('open choice at night', ()=>{
+                game.addPlayer(pi.initPlayer({
+                    id: 'id1',
+                    type: roleSeer.role,
+                }));
+                game.addPlayer(pi.initPlayer({
+                    id: 'id2',
+                    type: roleVillager.role,
+                }));
+                // 夜になる
+                game.runEvent(events.initPhaseNightEvent());
+                const efs = game.getEffects().asArray();
+                expect(efs.length).toBe(1);
+                const e = efs[0] as effect.ChoiceEffect;
+                expect(e.type).toBe(effect.EFFECT_CHOICE);
+                expect(e.on).toBe('id1');
+                expect(e.choice_kind).toBe(seerevent.CHOICE_SEER);
+                expect(e.value).toBe(undefined);
+                expect(e.options).toEqual([{
+                    label: 'id1',
+                    label_kind: 'player',
+                    value: 'id1',
+                }, {
+                    label: 'id2',
+                    label_kind: 'player',
+                    value: 'id2',
+                }]);
+            });
             it('get fortune result', ()=>{
                 game.addPlayer(pi.initPlayer({
                     id: 'id1',
@@ -191,13 +280,17 @@ describe('Roles', ()=>{
                 }));
                 // 夜になる
                 game.runEvent(events.initPhaseNightEvent());
+
+                const e = game.getEffects().get(0) as effect.ChoiceEffect;
                 // 対象選択
-                game.runEvent(events.initJobEvent({
+                game.runEvent(events.initChoiceEvent({
                     from: 'id1',
-                    to: 'id2',
+                    choice_id: e.id,
+                    value: 'id2',
                 }));
                 // 夜の能力実行
                 game.runEvent(events.initMidnightEvent());
+
                 // 実行結果を見る
                 const pl = game.getPlayers().get<Seer>('id1');
                 expect(pl!.results).toEqual([{

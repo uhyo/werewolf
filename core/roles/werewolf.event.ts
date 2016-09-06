@@ -1,6 +1,9 @@
 // Werewolf Event
 import {Event} from '../../lib';
 
+// 狼の襲撃対象選択のchoice
+export const CHOICE_WEREWOLF = 'core.werewolf';
+
 // 狼の対象選択イベント
 export const EVENT_JOB_WEREWOLF = 'core.werewolf.job';
 export interface JobWerewolfEvent extends Event{

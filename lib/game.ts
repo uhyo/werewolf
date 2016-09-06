@@ -5,7 +5,7 @@ import * as extend from 'extend';
 
 import {Event, EventBase, EventAdder} from './event';
 import {Player, Players} from './player';
-import {Effect} from './effect';
+import {Effect, Effects} from './effect';
 import {Field} from './field';
 
 import {HandlerParam, HandlerParamWithPlayer, HandlerParamWithEffect, EventHandler, HandlerProducer, KeyedHandlerProducers, EventAction, EventActions} from './handler';
@@ -20,7 +20,7 @@ export interface Package<P extends Player, E extends Effect, F extends Field>{
 
 export class Game<P extends Player, E extends Effect, F extends Field>{
     private players: Players<P>;
-    private effects: Array<E>;
+    private effects: Effects<E>;
     private field: F;
     // producers
     private ruleProducers: Array<HandlerProducer<P, E, F, EventRunner<P, E, F>, HandlerParam<P, E, F, Event, EventRunner<P, E, F>>>>;
@@ -30,7 +30,7 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
     private actions: EventActions<P, E, F, EventRunner<P, E, F>>;
     constructor(initField: F){
         this.players = new Players<P>();
-        this.effects = [];
+        this.effects = new Effects<E>();
         this.field = initField;
 
         this.ruleProducers = [];
@@ -71,10 +71,18 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
     addPlayer(p: P): void{
         this.players.add(p);
     }
+    // add Effect.
+    addEffect(e: E): void{
+        this.effects.add(e);
+    }
+    // remove Effect.
+    removeEffect(id: string): void{
+        this.effects.removeById(id);
+    }
 
     // run all events.
     runEvent<Ev extends Event>(e: Ev): Ev{
-        const resultObject = {} as {players: Players<P>; effects: Array<E>; field: F};
+        const resultObject = {} as {players: Players<P>; effects: Effects<E>; field: F};
         const runner = new EventRunner(this.players, this.effects, this.field, {
             ruleProducers: this.ruleProducers,
             playerProducers: this.playerProducers,
@@ -94,6 +102,9 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
     public getPlayers(): Players<P>{
         return process.env.NODE_ENV === 'production' ? this.players : this.players.deepClone();
     }
+    public getEffects(): Effects<E>{
+        return process.env.NODE_ENV === 'production' ? this.effects : this.effects.deepClone();
+    }
     public getField(): F{
         // copy to protect from modification
         return process.env.NODE_ENV === 'production' ? this.field : extend(true, {}, this.field);
@@ -104,11 +115,11 @@ export class Game<P extends Player, E extends Effect, F extends Field>{
 export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
     // 実行コンテキストで参照されるオブジェクト
     private players: Players<P>;
-    private effects: Array<Ef>;
+    private effects: Effects<Ef>;
     private field: F;
-    constructor(players: Players<P>, effects: Array<Ef>, field: F, private handlers: Package<P, Ef, F>, private base: EventBase | null, private resultObject?: {
+    constructor(players: Players<P>, effects: Effects<Ef>, field: F, private handlers: Package<P, Ef, F>, private base: EventBase | null, private resultObject?: {
         players?: Players<P>;
-        effects?: Array<Ef>;
+        effects?: Effects<Ef>;
         field?: F;
     }){
         this.players = safetyClone.players(players);
@@ -136,7 +147,7 @@ export class EventRunner<P extends Player, Ef extends Effect, F extends Field>{
             }
         }
         // from effectProducers
-        for (let ef of this.effects){
+        for (let ef of this.effects.asArray()){
             const pr = this.handlers.effectProducers[ef.type];
             if (pr){
                 const es = pr[e.type];
@@ -265,8 +276,8 @@ namespace safetyClone{
     export function effect<Ef extends Effect>(ef: Ef): Ef{
         return process.env.NODE_ENV==='production' ? ef : extend(true, {}, ef);
     }
-    export function effects<Ef extends Effect>(efs: Array<Ef>): Array<Ef>{
-        return process.env.NODE_ENV==='production' ? efs : efs.map(ef => extend(true, {}, ef));
+    export function effects<Ef extends Effect>(efs: Effects<Ef>): Effects<Ef>{
+        return process.env.NODE_ENV==='production' ? efs : efs.deepClone();
     }
     export function field<F extends Field>(f: F): F{
         return process.env.NODE_ENV==='production' ? f : extend(true, {}, f);

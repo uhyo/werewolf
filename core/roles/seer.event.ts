@@ -4,6 +4,9 @@ import {Event} from '../../lib';
 import {EventHandler} from '../handler';
 import * as priority from '../priority';
 
+// 占いの選択肢
+export const CHOICE_SEER = 'core.seer';
+
 // 占い結果
 export const SEER_RESULT_NONE  = 'seeresult.none';
 export const SEER_RESULT_HUMAN = 'seerresult.human';

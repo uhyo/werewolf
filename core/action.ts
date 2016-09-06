@@ -1,7 +1,12 @@
 // Event actions
 import {EventActions, EventRunner} from '../lib';
 import {Player} from './player';
-import {Effect} from './effect';
+import {
+    Effect,
+    ChoiceEffect,
+    EFFECT_CHOICE,
+    initChoiceEffect,
+} from './effect';
 import {Field, PHASE_DAY, PHASE_NIGHT} from './field';
 import {
     initLogPhaseTransition,
@@ -16,6 +21,34 @@ import * as count from './lib/count';
 import * as team from './lib/team';
 
 export default ({
+    // atomicなイベント
+    [events.EVENT_OPENCHOICE]: ({effects, event})=>{
+        const event2 = event as events.OpenChoiceEvent;
+        // ChoiceEffectを作る
+        const e = initChoiceEffect(event2.on, event2.kind, event2.options);
+        effects.add(e);
+    },
+    [events.EVENT_CHOICE]: ({players, effects, event})=>{
+        // 選択肢に対する回答
+        const event2 = event as events.ChoiceEvent;
+        const pl = players.get(event2.from);
+        const ef = effects.get(event2.choice_id) as ChoiceEffect;
+        if (pl != null && ef != null){
+            // PlayerとEffectが存在した
+            if (ef.type === EFFECT_CHOICE && ef.id === event2.choice_id && ef.on === pl.id){
+                // 該当の選択肢を見つけた
+                const v = event2.value;
+                if (ef.options.some(({value})=> value === v)){
+                    ef.value = v;
+                    return;
+                }
+            }
+        }
+        // TODO: 該当の選択肢が無かったときの処理は？
+        event2.prevented = true;
+    },
+
+    // phase transform
     [events.EVENT_PHASE_DAY]: ({field})=>{
         // phaseが移動する
         field.phase = PHASE_DAY;
@@ -28,10 +61,6 @@ export default ({
     [events.EVENT_PHASE_NIGHT]: ({players, field})=>{
         // 夜になる
         field.phase = PHASE_NIGHT;
-        // 夜投票を全部初期化する
-        for (let p of players.asArray()){
-            p.target = void 0;
-        }
         // 人狼の襲撃情報を初期化
         field.werewolfRemains = 1;
         field.werewolfTarget = [];
@@ -63,16 +92,6 @@ export default ({
             // 複数いた(TODO)
         }else if (result===VOTERESULT_NONE){
             // 処刑が成立しなかった(TODO)
-        }
-    },
-
-    [events.EVENT_JOB]: ({players, event})=>{
-        // 夜の対象を決定した
-        const event2 = event as events.JobEvent;
-        const pl = players.get(event2.from);
-        if (pl != null){
-            // Playerが存在した
-            pl.target = event2.to;
         }
     },
 

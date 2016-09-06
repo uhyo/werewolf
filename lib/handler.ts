@@ -1,7 +1,7 @@
 // Event Handler.
 import {Event} from './event';
 import {Player, Players} from './player';
-import {Effect} from './effect';
+import {Effect, Effects} from './effect';
 import {Field} from './field';
 
 // EventRunnerとは……
@@ -11,7 +11,7 @@ export interface IEventRunner<_P extends Player, _Ef extends Effect, _F extends 
 
 export interface HandlerParam<Pl extends Player, Ef extends Effect, F extends Field, Ev extends Event, R extends IEventRunner<Pl, Ef, F>>{
     players: Players<Pl>;
-    effects: Array<Ef>;
+    effects: Effects<Ef>;
     field: F;
     event: Ev;
     runner: R;

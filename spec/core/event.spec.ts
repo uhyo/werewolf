@@ -8,13 +8,15 @@ import {
     Field, Rule,
     PHASE_DAY, PHASE_NIGHT,
 } from '../../core/field';
-import {Effect} from '../../core/effect';
+import * as effect from '../../core/effect';
 import * as logs from '../../core/logs';
 import * as events from '../../core/events';
 import * as votebox from '../../core/lib/votebox';
 import * as count from '../../core/lib/count';
 import * as diereason from '../../core/lib/diereason';
 import * as team from '../../core/lib/team';
+
+type Effect = effect.Effect;
 
 describe('Events', ()=>{
     let game: Game<Player, Effect, Field>;
@@ -25,6 +27,70 @@ describe('Events', ()=>{
     beforeEach(()=>{
         game = initGame(initField(rule));
         pi = getPlayerInitiator();
+    });
+    describe('Choice Events', ()=>{
+        it('EVENT_OPENCHOICE', ()=>{
+            game.addPlayer(initPlayer({
+                id: 'id1',
+                type: 'TODO',
+            }));
+            game.runEvent(events.initOpenChoiceEvent({
+                on: 'id1',
+                kind: 'foooo',
+                options: [{
+                    label: 'あいう',
+                    label_kind: 'string',
+                    value: 'aiu',
+                }, {
+                    label: '吉野家',
+                    label_kind: 'string',
+                    value: 'yoshinoya',
+                }],
+            }));
+            const efs = game.getEffects();
+            expect(efs.length).toBe(1);
+            const e = efs.get(0) as effect.ChoiceEffect;
+            expect(e.type).toBe(effect.EFFECT_CHOICE);
+            expect('string' === typeof e.id).toBe(true);
+            expect(e.choice_kind).toBe('foooo');
+            expect(e.options).toEqual([{
+                label: 'あいう',
+                label_kind: 'string',
+                value: 'aiu',
+            }, {
+                label: '吉野家',
+                label_kind: 'string',
+                value: 'yoshinoya',
+            }]);
+            expect(e.value).toBe(undefined);
+        });
+        it('EVENT_CHOICE', ()=>{
+            game.addPlayer(initPlayer({
+                id: 'id1',
+                type: 'TODO',
+            }));
+            game.addPlayer(initPlayer({
+                id: 'id2',
+                type: 'TODO',
+            }));
+            const ef = effect.initChoiceEffect('id1', 'foo.kind', [{
+                label: 'あいう',
+                label_kind: 'string',
+                value: 'aiu',
+            }, {
+                label: '吉野家',
+                label_kind: 'string',
+                value: 'yoshinoya',
+            }]);
+            game.addEffect(ef);
+            const efid = ef.id;
+            game.runEvent(events.initChoiceEvent({
+                from: 'id1',
+                choice_id: efid,
+                value: 'yoshinoya',
+            }));
+            expect(game.getEffects().get<effect.ChoiceEffect>(efid)!.value).toBe('yoshinoya');
+        });
     });
     describe('Phase Events', ()=>{
         it('initPhaseDayEvent', ()=>{
@@ -67,28 +133,6 @@ describe('Events', ()=>{
                 },
             ]);
         });
-        it('EVENT_PHASE_NIGHT resets target', ()=>{
-            game.addPlayer(initPlayer({
-                id: 'id1',
-                type: 'TODO',
-            }));
-            game.addPlayer(initPlayer({
-                id: 'id2',
-                type: 'TODO',
-            }));
-            // targetをあれする
-            game.runEvent(events.initJobEvent({
-                from: 'id1',
-                to: 'id2',
-            }));
-            game.runEvent(events.initJobEvent({
-                from: 'id2',
-                to: 'id1',
-            }));
-            game.runEvent(events.initPhaseNightEvent());
-            expect(game.getPlayers().get('id1')!.target).toBe(undefined);
-            expect(game.getPlayers().get('id2')!.target).toBe(undefined);
-        });
     });
     describe('Voting Events', ()=>{
         it('initVoteEvent', ()=>{
@@ -130,49 +174,17 @@ describe('Events', ()=>{
                 },
             });
         });
-        it('initJobEvent', ()=>{
-            expect(events.initJobEvent({
+        it('initChoiceEvent', ()=>{
+            expect(events.initChoiceEvent({
                 from: 'id1',
-                to: 'id2',
+                choice_id: 'foooo',
+                value: 'id2',
             })).toEqual({
-                type: events.EVENT_JOB,
+                type: events.EVENT_CHOICE,
+                choice_id: 'foooo',
                 from: 'id1',
-                to: 'id2',
+                value: 'id2',
             });
-        });
-        it('EVENT_JOB', ()=>{
-            game.addPlayer(initPlayer({
-                id: 'id1',
-                type: 'TODO',
-            }));
-            game.addPlayer(initPlayer({
-                id: 'id2',
-                type: 'TODO',
-            }));
-            game.runEvent(events.initJobEvent({
-                from: 'id1',
-                to: 'id2',
-            }));
-            expect(game.getPlayers().get('id1')!.target).toBe('id2');
-        });
-        it('EVENT_JOB overrides target', ()=>{
-            game.addPlayer(initPlayer({
-                id: 'id1',
-                type: 'TODO',
-            }));
-            game.addPlayer(initPlayer({
-                id: 'id2',
-                type: 'TODO',
-            }));
-            game.runEvent(events.initJobEvent({
-                from: 'id1',
-                to: 'id2',
-            }));
-            game.runEvent(events.initJobEvent({
-                from: 'id1',
-                to: 'id1',
-            }));
-            expect(game.getPlayers().get('id1')!.target).toBe('id1');
         });
     });
     describe('Die Event', ()=>{

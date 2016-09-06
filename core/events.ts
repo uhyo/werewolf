@@ -2,6 +2,9 @@
 import {Event} from '../lib';
 
 import * as count from './lib/count';
+import {
+    Choice,
+} from './lib/choice';
 
 // 昼になるevent
 export const EVENT_PHASE_DAY = 'core.phase.day';
@@ -16,8 +19,11 @@ export const EVENT_LYNCH = 'core.lynch';
 // 処刑投票
 export const EVENT_VOTE = 'core.vote';
 
-// 夜の投票
-export const EVENT_JOB = 'core.job';
+// 選択肢を追加
+export const EVENT_OPENCHOICE = 'core.openchoice';
+
+// 選択肢を選択
+export const EVENT_CHOICE = 'core.choice';
 
 // 死亡
 export const EVENT_DIE = 'core.die';
@@ -87,22 +93,53 @@ export function initLynchEvent(): LynchEvent{
     };
 }
 
-// 夜投票のイベント
-export interface JobEvent extends Event{
-    // 投票者
-    from: string;
-    // 対象
-    to: string;
+// 選択肢を追加するイベント
+export interface OpenChoiceEvent extends Event{
+    // 誰の選択肢か
+    on: string;
+    // 選択肢の種類
+    kind: string;
+    // 選択肢
+    options: Array<Choice>;
 }
-export function initJobEvent(obj: {
-    from: string;
-    to: string;
-}): JobEvent{
-    const {from, to} = obj;
+export function initOpenChoiceEvent(obj: {
+    on: string;
+    kind: string;
+    options: Array<Choice>;
+}): OpenChoiceEvent{
+    const {
+        on,
+        kind,
+        options,
+    } = obj;
     return {
-        type: EVENT_JOB,
+        type: EVENT_OPENCHOICE,
+        on,
+        kind,
+        options,
+    };
+}
+
+// 選択肢を選択するイベント
+export interface ChoiceEvent extends Event{
+    // 選択者
+    from: string;
+    // 選択肢ID
+    choice_id: string;
+    // 対象
+    value: string;
+}
+export function initChoiceEvent(obj: {
+    from: string;
+    choice_id: string;
+    value: string;
+}): ChoiceEvent{
+    const {from, choice_id, value} = obj;
+    return {
+        type: EVENT_CHOICE,
         from,
-        to,
+        choice_id,
+        value,
     };
 }
 
