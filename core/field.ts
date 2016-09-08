@@ -8,6 +8,7 @@ import {
 export interface Rule{
 }
 
+export const PHASE_PROLOGUE = 'prologue';
 export const PHASE_DAY = 'day';
 export const PHASE_NIGHT = 'night';
 
@@ -40,7 +41,7 @@ export interface Field extends lib.Field{
 export function initField(rule: Rule): Field{
     return {
         rule,
-        phase: PHASE_NIGHT,
+        phase: PHASE_PROLOGUE,
         logs: [],
         day: 0,
         votebox: {},

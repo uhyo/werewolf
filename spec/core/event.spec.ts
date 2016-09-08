@@ -6,7 +6,8 @@ import {Player, PlayerInit, PlayerInitiator} from '../../core/player';
 import {
     initField,
     Field, Rule,
-    PHASE_DAY, PHASE_NIGHT,
+    PHASE_DAY,
+    PHASE_NIGHT,
 } from '../../core/field';
 import * as effect from '../../core/effect';
 import * as logs from '../../core/logs';
@@ -24,6 +25,18 @@ describe('Events', ()=>{
     let rule: Rule = makeRule();
     // macro
     const initPlayer = (obj: PlayerInit)=> pi.initPlayer(obj);
+    // 特定のイベントが発生したか監視
+    const eventMonitor = (game: Game<Player, Effect, Field>, ev: string, handler: ()=>void)=>{
+        game.loadRuleProducers([{
+            [ev]: [{
+                priority: 1e6,
+                handler,
+            }],
+        }]);
+    };
+    // fieldをむりやり書き換える
+    const getModifiableField = (game: Game<Player, Effect, Field>)=> (game as any).field as Field;
+
     beforeEach(()=>{
         game = initGame(initField(rule));
         pi = getPlayerInitiator();
@@ -93,6 +106,11 @@ describe('Events', ()=>{
         });
     });
     describe('Phase Events', ()=>{
+        it('initNextPhaseEvent', ()=>{
+            expect(events.initNextPhaseEvent()).toEqual({
+                type: events.EVENT_NEXTPHASE,
+            });
+        });
         it('initPhaseDayEvent', ()=>{
             expect(events.initPhaseDayEvent()).toEqual({
                 type: events.EVENT_PHASE_DAY,
@@ -132,6 +150,45 @@ describe('Events', ()=>{
                     phase: 'night',
                 },
             ]);
+        });
+        describe('EVENT_NEXTPHASE', ()=>{
+            it('start -> night', ()=>{
+                let flag = false;
+                // add handler that catches emission of EVENT_PHASE_NIGHT
+                eventMonitor(game, events.EVENT_PHASE_NIGHT, ()=>{
+                    flag = true;
+                });
+                game.runEvent(events.initNextPhaseEvent());
+                expect(flag).toBe(true);
+            });
+            it('night -> day', ()=>{
+                const f = getModifiableField(game);
+                f.phase = PHASE_NIGHT;
+                f.day = 2;
+                let flag = 0;
+                eventMonitor(game, events.EVENT_PHASE_DAY, ()=>{
+                    flag++;
+                });
+                eventMonitor(game, events.EVENT_MIDNIGHT, ()=>{
+                    flag++;
+                });
+                game.runEvent(events.initNextPhaseEvent());
+                expect(flag).toBe(2);
+            });
+            it('day -> night', ()=>{
+                const f = getModifiableField(game);
+                f.phase = PHASE_DAY;
+                f.day = 2;
+                let flag = 0;
+                eventMonitor(game, events.EVENT_PHASE_NIGHT, ()=>{
+                    flag++;
+                });
+                eventMonitor(game, events.EVENT_LYNCH, ()=>{
+                    flag++;
+                });
+                game.runEvent(events.initNextPhaseEvent());
+                expect(flag).toBe(2);
+            });
         });
     });
     describe('Voting Events', ()=>{

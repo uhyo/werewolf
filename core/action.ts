@@ -7,7 +7,11 @@ import {
     EFFECT_CHOICE,
     initChoiceEffect,
 } from './effect';
-import {Field, PHASE_DAY, PHASE_NIGHT} from './field';
+import {Field,
+    PHASE_PROLOGUE,
+    PHASE_DAY,
+    PHASE_NIGHT,
+} from './field';
 import {
     initLogPhaseTransition,
 } from './logs';
@@ -49,6 +53,26 @@ export default ({
     },
 
     // phase transform
+    [events.EVENT_NEXTPHASE]: ({field, runner})=>{
+        // 次のフェーズに進む
+        const {
+            phase,
+        } = field;
+        if (phase === PHASE_DAY){
+            // 処刑して夜へ
+            runner.addEvent(events.initLynchEvent());
+            runner.addEvent(events.initPhaseNightEvent());
+        }else if (phase === PHASE_NIGHT){
+            runner.addEvent(events.initMidnightEvent());
+            runner.addEvent(events.initPhaseDayEvent());
+        }else if (phase === PHASE_PROLOGUE){
+            runner.addEvent(events.initPhaseNightEvent());
+        }else{
+            // ???
+            // TODO
+            throw new Error('Unknown phase');
+        }
+    },
     [events.EVENT_PHASE_DAY]: ({field})=>{
         // phaseが移動する
         field.phase = PHASE_DAY;

@@ -6,6 +6,9 @@ import {
     Choice,
 } from './lib/choice';
 
+// ゲームの処理を一段階進めるevent
+export const EVENT_NEXTPHASE = 'core.nextphase';
+
 // 昼になるevent
 export const EVENT_PHASE_DAY = 'core.phase.day';
 // 夜になるevent
@@ -38,6 +41,11 @@ export const EVENT_QUERY_COUNT = 'core.query.count';
 export const EVENT_QUERY_VOTEDONE = 'core.query.votedone';
 
 // Phase event
+export function initNextPhaseEvent(): Event{
+    return {
+        type: EVENT_NEXTPHASE,
+    };
+}
 export function initPhaseDayEvent(): Event{
     return {
         type: EVENT_PHASE_DAY,
