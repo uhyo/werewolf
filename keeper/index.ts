@@ -14,7 +14,7 @@ import {
 } from '../core/field';
 
 import {
-    initPhaseNightEvent,
+    initNextPhaseEvent,
 } from '../core/events';
 
 export class Keeper{
@@ -34,7 +34,7 @@ export class Keeper{
             throw new Error('Game has already started');
         }
         // 最初の夜にする
-        this.game.runEvent(initPhaseNightEvent());
+        this.game.runEvent(initNextPhaseEvent());
         this.state = 'playing';
 
         this.phaseTimer();
@@ -61,11 +61,12 @@ export class Keeper{
                 // TODO
                 time = 1;
         }
-        setTimeout(this.nextPhase.bind(this), time*1000);
+        this.timerid = setTimeout(this.nextPhase.bind(this), time*1000);
     }
     private nextPhase(): void{
         // call the game to go to the next phase.
         // TODO
+        this.game.runEvent(initNextPhaseEvent());
     }
 }
 

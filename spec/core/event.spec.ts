@@ -1,7 +1,7 @@
 ///<reference path='../../typings/bundle.d.ts' />
 
 import {initGame, makeRule, getPlayerInitiator} from './init-game';
-import {Game} from '../../lib';
+import {Game, Effects} from '../../lib';
 import {Player, PlayerInit, PlayerInitiator} from '../../core/player';
 import {
     initField,
@@ -36,6 +36,9 @@ describe('Events', ()=>{
     };
     // fieldをむりやり書き換える
     const getModifiableField = (game: Game<Player, Effect, Field>)=> (game as any).field as Field;
+    // playerもむりやり書き換える
+    const getModifiablePlayer = (game: Game<Player, Effect, Field>, id: string)=> (game as any).players.get(id) as Player;
+    const getModifiableEffects = (game: Game<Player, Effect, Field>)=> (game as any).effects as Effects<effect.Effect>;
 
     beforeEach(()=>{
         game = initGame(initField(rule));
@@ -450,6 +453,109 @@ describe('Events', ()=>{
                 }));
                 const e = game.runEvent(events.initQueryVotedoneEvent('id1'));
                 expect(e.result).toBe(true);
+            });
+        });
+    });
+    describe('PlayerInfo', ()=>{
+        it('EVENT_QUERY_PLAYERINFO', ()=>{
+            expect(events.initQueryPlayerInfoEvent('id1')).toEqual({
+                type: events.EVENT_QUERY_PLAYERINFO,
+                on: 'id1',
+                result: {
+                    id: 'id1',
+                    roleDisp: undefined,
+                    dead: undefined,
+                    choices: [],
+                    data: {},
+                },
+            });
+        });
+        it('Basic query result', ()=>{
+            game.addPlayer(initPlayer({
+                id: 'id1',
+                type: 'TODO',
+            }));
+            const ev = game.runEvent(events.initQueryPlayerInfoEvent('id1'));
+            const i = ev.result;
+            expect(i.id).toBe('id1');
+            expect(i.roleDisp).toBe('TODO');
+            expect(i.dead).toBe(false);
+            expect(i.choices).toEqual([]);
+        });
+        it('deadness', ()=>{
+            game.addPlayer(initPlayer({
+                id: 'id1',
+                type: 'TODO',
+            }));
+            const pl = getModifiablePlayer(game, 'id1');
+            pl.dead = true;
+
+            const ev = game.runEvent(events.initQueryPlayerInfoEvent('id1'));
+            const i = ev.result;
+            expect(i.dead).toBe(true);
+        });
+        describe('open choices', ()=>{
+            it('no choice', ()=>{
+                game.addPlayer(initPlayer({
+                    id: 'id1',
+                    type: 'TODO',
+                }));
+                game.addEffect(effect.initChoiceEffect('id1', 'foooo', [{
+                    value: 'id1',
+                    label: 'id1',
+                    label_kind: 'player',
+                }, {
+                    value: '吉野家',
+                    label: '吉野家',
+                    label_kind: 'string',
+                }]));
+
+                const {result} = game.runEvent(events.initQueryPlayerInfoEvent('id1'));
+                expect(result.choices).toEqual([{
+                    kind: 'foooo',
+                    options: [{
+                        value: 'id1',
+                        label: 'id1',
+                        label_kind: 'player',
+                    }, {
+                        value: '吉野家',
+                        label: '吉野家',
+                        label_kind: 'string',
+                    }],
+                    value: undefined,
+                }]);
+            });
+            it('yes choice', ()=>{
+                game.addPlayer(initPlayer({
+                    id: 'id1',
+                    type: 'TODO',
+                }));
+                game.addEffect(effect.initChoiceEffect('id1', 'foooo', [{
+                    value: 'id1',
+                    label: 'id1',
+                    label_kind: 'player',
+                }, {
+                    value: '吉野家',
+                    label: '吉野家',
+                    label_kind: 'string',
+                }]));
+                // 選択肢を書き換え
+                getModifiableEffects(game).ofType<effect.ChoiceEffect>(effect.EFFECT_CHOICE)[0].value = 'id1';
+
+                const {result} = game.runEvent(events.initQueryPlayerInfoEvent('id1'));
+                expect(result.choices).toEqual([{
+                    kind: 'foooo',
+                    options: [{
+                        value: 'id1',
+                        label: 'id1',
+                        label_kind: 'player',
+                    }, {
+                        value: '吉野家',
+                        label: '吉野家',
+                        label_kind: 'string',
+                    }],
+                    value: 'id1',
+                }]);
             });
         });
     });

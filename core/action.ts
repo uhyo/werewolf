@@ -190,5 +190,29 @@ export default ({
             event2.result = true;
         }
     },
+    [events.EVENT_QUERY_PLAYERINFO]: ({field, effects, players, event})=>{
+        const event2 = event as events.QueryPlayerInfoEvent;
+        const {
+            on,
+            result,
+        } = event2;
+        const pl = players.get(on);
+        if (pl == null){
+            return;
+        }
+        // 基礎情報を入れていく
+        result.roleDisp = pl.type;
+        result.dead = pl.dead;
+        // choicesも入れる
+        for (let ef of effects.ofType<ChoiceEffect>(EFFECT_CHOICE)){
+            if (ef.on === on){
+                result.choices.push({
+                    kind: ef.choice_kind,
+                    options: ef.options,
+                    value: ef.value,
+                });
+            }
+        }
+    },
 } as EventActions<Player, Effect, Field, EventRunner<Player, Effect, Field>>);
 

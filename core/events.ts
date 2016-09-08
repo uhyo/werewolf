@@ -5,6 +5,9 @@ import * as count from './lib/count';
 import {
     Choice,
 } from './lib/choice';
+import {
+    PlayerInfo,
+} from './lib/info';
 
 // ゲームの処理を一段階進めるevent
 export const EVENT_NEXTPHASE = 'core.nextphase';
@@ -39,6 +42,9 @@ export const EVENT_QUERY_COUNT = 'core.query.count';
 
 // 投票終了したかどうか
 export const EVENT_QUERY_VOTEDONE = 'core.query.votedone';
+
+// ユーザーの個人情報
+export const EVENT_QUERY_PLAYERINFO = 'core.query.playerinfo';
 
 // Phase event
 export function initNextPhaseEvent(): Event{
@@ -215,5 +221,26 @@ export function initQueryVotedoneEvent(on: string): QueryVotedoneEvent{
         type: EVENT_QUERY_VOTEDONE,
         on,
         result: false,
+    };
+}
+
+export interface QueryPlayerInfoEvent extends Event{
+    // 誰
+    on: string;
+    // 結果
+    result: PlayerInfo;
+}
+export function initQueryPlayerInfoEvent(on: string): QueryPlayerInfoEvent{
+    const result: PlayerInfo = {
+        id: on,
+        roleDisp: undefined,
+        dead: undefined,
+        choices: [],
+        data: {},
+    };
+    return {
+        type: EVENT_QUERY_PLAYERINFO,
+        on,
+        result,
     };
 }
