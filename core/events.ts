@@ -1,5 +1,6 @@
 // Event definitions
 import {Event} from '../lib';
+import {Log} from './logs';
 
 import * as count from './lib/count';
 import {
@@ -11,6 +12,9 @@ import {
 
 // ゲームの処理を一段階進めるevent
 export const EVENT_NEXTPHASE = 'core.nextphase';
+
+// 発生したログをもらうevent
+export const EVENT_PULL_LOGS = 'core.pulllogs';
 
 // 昼になるevent
 export const EVENT_PHASE_DAY = 'core.phase.day';
@@ -46,6 +50,7 @@ export const EVENT_QUERY_VOTEDONE = 'core.query.votedone';
 // ユーザーの個人情報
 export const EVENT_QUERY_PLAYERINFO = 'core.query.playerinfo';
 
+
 // Phase event
 export function initNextPhaseEvent(): Event{
     return {
@@ -65,6 +70,17 @@ export function initPhaseNightEvent(): Event{
 export function initMidnightEvent(): Event{
     return {
         type: EVENT_MIDNIGHT,
+    };
+}
+
+// ログをもらうイベント
+export interface PullLogsEvent extends Event{
+    logs: Array<Log>;
+}
+export function initPullLogsEvent(): PullLogsEvent{
+    return {
+        type: EVENT_PULL_LOGS,
+        logs: [],
     };
 }
 

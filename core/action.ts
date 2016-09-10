@@ -52,6 +52,12 @@ export default ({
         event2.prevented = true;
     },
 
+    [events.EVENT_PULL_LOGS]: ({field, event})=>{
+        const event2 = event as events.PullLogsEvent;
+        event2.logs.push(...field.logs);
+        field.logs = [];
+    },
+
     // phase transform
     [events.EVENT_NEXTPHASE]: ({field, runner})=>{
         // 次のフェーズに進む

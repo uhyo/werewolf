@@ -108,6 +108,31 @@ describe('Events', ()=>{
             expect(game.getEffects().get<effect.ChoiceEffect>(efid)!.value).toBe('yoshinoya');
         });
     });
+    describe('Pull logs', ()=>{
+        it('initPullLogsEvent', ()=>{
+            expect(events.initPullLogsEvent()).toEqual({
+                type: events.EVENT_PULL_LOGS,
+                logs: [],
+            });
+        });
+        it('EVENT_PULL_LOGS deletes remaining logs', ()=>{
+            const f = getModifiableField(game);
+            const l = logs.initLogPhaseTransition(1, 'day');
+            f.logs.push(l);
+            game.runEvent(events.initPullLogsEvent());
+
+            const f2 = game.getField();
+            expect(f2.logs).toEqual([]);
+        });
+        it('EVENT_PULL_LOGS gets logs', ()=>{
+            const f = getModifiableField(game);
+            const l = logs.initLogPhaseTransition(1, 'day');
+            f.logs.push(l);
+            const e = game.runEvent(events.initPullLogsEvent());
+
+            expect(e.logs).toEqual([l]);
+        });
+    });
     describe('Phase Events', ()=>{
         it('initNextPhaseEvent', ()=>{
             expect(events.initNextPhaseEvent()).toEqual({
