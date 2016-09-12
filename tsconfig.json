@@ -2,6 +2,7 @@
     "compilerOptions":{
         "lib": ["dom", "es5", "es2015.core", "es2015.promise"],
         "declaration": true,
+        "moduleResolution": "Node",
         "noEmitOnError": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
@@ -15,7 +16,7 @@
         "declarationDir":"dist-typings/"
     },
     "include":[
-        "core/**/*.ts", "lib/**/*.ts", "spec/**/*.ts"
+        "index.ts", "lib/**/*.ts", "core/**/*.ts", "spec/**/*.ts"
     ],
     "exclude":[
         "node_modules/",

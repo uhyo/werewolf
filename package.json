@@ -2,17 +2,19 @@
   "name": "werewolf-core",
   "version": "0.0.1",
   "description": "Are you a WEREWOLF?",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "typings": "dist-typings/index.d.ts",
   "scripts": {
-    "build": "npm-run-all clean build:tsc lint",
+    "build": "npm-run-all clean build:autogen build:tsc lint",
+    "build:autogen": "node build/autoindex.js",
     "build:tsc": "tsc",
     "clean": "rimraf dist dist-typings",
-    "lint": "find lib/ spec/ core/ -name \"*.ts\" | xargs tslint --force",
-    "test": "node spec/support/run-jasmine.js",
+    "lint": "find core/ lib/ spec/ -name \"*.ts\" | xargs tslint --force",
+    "test": "node build/test/run-jasmine.js",
     "watch": "npm-run-all --parallel watch:*",
-    "watch:lint": "watch 'npm run lint' lib/ core/ spec/ --wait=0.3 --verbose",
+    "watch:lint": "watch 'npm run lint' core/ lib/ spec/ --wait=0.3 --verbose",
     "watch:tsc": "tsc --watch",
-    "watch:test": "mkdirp dist && watch 'node spec/support/run-jasmine.js' dist/ --wait=0.3 --verbose"
+    "watch:test": "mkdirp dist && watch 'npm run test' dist/ --wait=0.3 --verbose"
   },
   "keywords": [
     "werewolf"
