@@ -22,16 +22,12 @@
   "author": "uhyo",
   "license": "MIT",
   "dependencies": {
-    "config": "^1.21.0",
-    "extend": "^3.0.0",
-    "redis": "^2.6.2"
+    "extend": "^3.0.0"
   },
   "devDependencies": {
-    "@types/config": "0.0.29",
-    "@types/eventemitter3": "0.0.28",
     "@types/extend": "^2.0.29",
     "@types/jasmine": "^2.2.33",
-    "@types/redis": "^0.12.31",
+    "@types/node": "^6.0.38",
     "jasmine": "^2.4.1",
     "jasmine-spec-reporter": "^2.4.0",
     "mkdirp": "^0.5.1",
