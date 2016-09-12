@@ -1,5 +1,3 @@
-///<reference path='../../../typings/bundle.d.ts' />
-
 import {Vote, VoteBox, VoteResult, initVoteBox, addVote, countVotes,
         VOTERESULT_CHOSEN, VOTERESULT_MULTI, VOTERESULT_NONE} from '../../../core/lib/votebox';
 describe('votebox', ()=>{

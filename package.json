@@ -1,5 +1,5 @@
 {
-  "name": "werewolf",
+  "name": "werewolf-core",
   "version": "0.0.1",
   "description": "Are you a WEREWOLF?",
   "main": "index.js",
@@ -7,10 +7,10 @@
     "build": "npm-run-all clean build:tsc lint",
     "build:tsc": "tsc",
     "clean": "rimraf dist",
-    "lint": "find lib/ spec/ core/ keeper/ -name \"*.ts\" | xargs tslint --force",
+    "lint": "find lib/ spec/ core/ -name \"*.ts\" | xargs tslint --force",
     "test": "node spec/support/run-jasmine.js",
     "watch": "npm-run-all --parallel watch:*",
-    "watch:lint": "watch 'npm run lint' lib/ core/ keeper/ spec/ --wait=0.3 --verbose",
+    "watch:lint": "watch 'npm run lint' lib/ core/ spec/ --wait=0.3 --verbose",
     "watch:tsc": "tsc --watch",
     "watch:test": "mkdirp dist && watch 'node spec/support/run-jasmine.js' dist/ --wait=0.3 --verbose"
   },
@@ -20,9 +20,16 @@
   "author": "uhyo",
   "license": "MIT",
   "dependencies": {
-    "extend": "^3.0.0"
+    "config": "^1.21.0",
+    "extend": "^3.0.0",
+    "redis": "^2.6.2"
   },
   "devDependencies": {
+    "@types/config": "0.0.29",
+    "@types/eventemitter3": "0.0.28",
+    "@types/extend": "^2.0.29",
+    "@types/jasmine": "^2.2.33",
+    "@types/redis": "^0.12.31",
     "jasmine": "^2.4.1",
     "jasmine-spec-reporter": "^2.4.0",
     "mkdirp": "^0.5.1",

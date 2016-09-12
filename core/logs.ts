@@ -6,7 +6,7 @@ export interface Log{
 
 // 昼と夜の移り変わり
 export const LOG_PHASE_TRANSITION = 'log.phase-transition';
-type PhaseType = 'day' | 'night';
+export type PhaseType = 'day' | 'night';
 export interface LogPhaseTransition extends Log{
     // 日数
     day: number;

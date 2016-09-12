@@ -1,5 +1,10 @@
 // Event actions
-import {EventActions, EventRunner} from '../lib';
+import {
+    Event,
+    EventActions,
+    EventRunner,
+    HandlerParam,
+} from '../lib';
 import {Player} from './player';
 import {
     Effect,
@@ -53,8 +58,10 @@ export default ({
     },
 
     [events.EVENT_PULL_LOGS]: ({field, event})=>{
+        // 蓄積したログを取得
         const event2 = event as events.PullLogsEvent;
         event2.logs.push(...field.logs);
+        // 取得したログはフィールドから削除
         field.logs = [];
     },
 

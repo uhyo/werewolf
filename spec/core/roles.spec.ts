@@ -1,5 +1,3 @@
-///<reference path='../../typings/bundle.d.ts' />
-
 import {initGame, makeRule, getPlayerInitiator} from './init-game';
 import {Game} from '../../lib';
 import {Player, PlayerInit, PlayerInitiator} from '../../core/player';

@@ -17,7 +17,7 @@ export interface RolePackage<Pl extends Player> extends Package, RoleInfo<Pl>{
 }
 
 // XXX ここでlib.Packageのdefに依存しているのはよくない? (partialize operatorかunpartialize operatorがほしい)
-interface PartialPackage{
+export interface PartialPackage{
     ruleProducers?: Array<HandlerProducer>;
     playerProducers?: lib.KeyedHandlerProducers<Player, Effect, Field, EventRunner, HandlerParamWithPlayer>;
     effectProducers?: lib.KeyedHandlerProducers<Player, Effect, Field, EventRunner, HandlerParamWithEffect>;

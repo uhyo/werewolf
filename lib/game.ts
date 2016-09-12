@@ -1,6 +1,4 @@
 // Game System.
-///<reference path="../typings/bundle.d.ts" />
-
 import * as extend from 'extend';
 
 import {Event, EventBase, EventAdder} from './event';

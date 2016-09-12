@@ -1,4 +1,3 @@
-///<reference path="../typings/bundle.d.ts" />
 import * as extend from 'extend';
 
 // Effects

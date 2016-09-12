@@ -1,6 +1,9 @@
 // Seer: 占い師
 import {Player} from '../player';
-import {initPackage} from '../package';
+import {
+    initPackage,
+    RolePackage,
+} from '../package';
 
 import * as effect from '../effect';
 import * as events from '../events';

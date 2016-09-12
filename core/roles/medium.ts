@@ -1,6 +1,9 @@
 // Medium: 霊能者
 import {Player} from '../player';
-import {initPackage} from '../package';
+import {
+    initPackage,
+    RolePackage,
+} from '../package';
 
 import * as events from '../events';
 import * as priority from '../priority';

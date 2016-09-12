@@ -3,7 +3,7 @@ import {
     Choice,
 } from './choice';
 
-interface OpenChoice{
+export interface OpenChoice{
     // 選択肢の種類
     kind: string;
     // 選択肢
