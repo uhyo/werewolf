@@ -8,8 +8,8 @@ import {
     PHASE_NIGHT,
 } from '../../core/field';
 import * as effect from '../../core/effect';
-import * as logs from '../../core/logs';
-import * as events from '../../core/events';
+import * as log from '../../core/log';
+import * as events from '../../core/event';
 import * as votebox from '../../core/lib/votebox';
 import * as count from '../../core/lib/count';
 import * as diereason from '../../core/lib/diereason';
@@ -115,7 +115,7 @@ describe('Events', ()=>{
         });
         it('EVENT_PULL_LOGS deletes remaining logs', ()=>{
             const f = getModifiableField(game);
-            const l = logs.initLogPhaseTransition(1, 'day');
+            const l = log.initLogPhaseTransition(1, 'day');
             f.logs.push(l);
             game.runEvent(events.initPullLogsEvent());
 
@@ -124,7 +124,7 @@ describe('Events', ()=>{
         });
         it('EVENT_PULL_LOGS gets logs', ()=>{
             const f = getModifiableField(game);
-            const l = logs.initLogPhaseTransition(1, 'day');
+            const l = log.initLogPhaseTransition(1, 'day');
             f.logs.push(l);
             const e = game.runEvent(events.initPullLogsEvent());
 
@@ -155,7 +155,7 @@ describe('Events', ()=>{
             expect(f.votebox).toEqual({});
             expect(f.logs).toEqual([
                 {
-                    type: logs.LOG_PHASE_TRANSITION,
+                    type: log.LOG_PHASE_TRANSITION,
                     day: 1,
                     phase: 'day',
                 },
@@ -171,7 +171,7 @@ describe('Events', ()=>{
             expect(f.werewolfTarget).toEqual([]);
             expect(f.logs).toEqual([
                 {
-                    type: logs.LOG_PHASE_TRANSITION,
+                    type: log.LOG_PHASE_TRANSITION,
                     day: 0,
                     phase: 'night',
                 },

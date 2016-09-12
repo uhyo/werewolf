@@ -1,6 +1,6 @@
 // Event definitions
 import {Event} from '../lib';
-import {Log} from './logs';
+import {Log} from './log';
 
 import * as count from './lib/count';
 import {

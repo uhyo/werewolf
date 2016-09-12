@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm-run-all clean build:tsc lint",
     "build:tsc": "tsc",
-    "clean": "rimraf dist",
+    "clean": "rimraf dist dist-typings",
     "lint": "find lib/ spec/ core/ -name \"*.ts\" | xargs tslint --force",
     "test": "node spec/support/run-jasmine.js",
     "watch": "npm-run-all --parallel watch:*",

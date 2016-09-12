@@ -5,7 +5,7 @@ import {
     RolePackage,
 } from '../package';
 
-import * as events from '../events';
+import * as events from '../event';
 import * as priority from '../priority';
 import * as count from '../lib/count';
 import * as diereason from '../lib/diereason';

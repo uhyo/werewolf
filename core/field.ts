@@ -3,7 +3,7 @@ import * as lib from '../lib';
 import {VoteBox} from './lib/votebox';
 import {
     Log,
-} from './logs';
+} from './log';
 
 export interface Rule{
 }

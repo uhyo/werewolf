@@ -2,7 +2,7 @@
 import {Player} from '../player';
 import {RolePackage} from '../package';
 
-import * as events from '../events';
+import * as events from '../event';
 import * as effect from '../effect';
 import * as priority from '../priority';
 import * as count from '../lib/count';

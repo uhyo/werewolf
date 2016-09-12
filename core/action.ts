@@ -19,11 +19,11 @@ import {Field,
 } from './field';
 import {
     initLogPhaseTransition,
-} from './logs';
+} from './log';
 
 import {initVoteBox, addVote, countVotes, VOTERESULT_CHOSEN, VOTERESULT_MULTI, VOTERESULT_NONE} from './lib/votebox';
 
-import * as events from './events';
+import * as events from './event';
 
 import * as diereason from './lib/diereason';
 import * as count from './lib/count';

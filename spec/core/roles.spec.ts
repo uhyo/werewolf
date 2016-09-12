@@ -9,7 +9,7 @@ import {
 } from '../../core/field';
 import * as effect from '../../core/effect';
 type Effect = effect.Effect;
-import * as events from '../../core/events';
+import * as events from '../../core/event';
 import * as votebox from '../../core/lib/votebox';
 import * as count from '../../core/lib/count';
 import * as diereason from '../../core/lib/diereason';
