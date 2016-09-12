@@ -37,9 +37,10 @@ function genIndex(target){
             continue;
         }
         const ext = path.extname(f);
-        const b = path.basename(f, ext).replace(/\W+/, '');
-        reader += `import * as _${b} from './${f}';\n`;
-        writer += `    _${b} as ${b},\n`;
+        const b = path.basename(f, ext);
+        const t = b.replace(/\W+/, '');
+        reader += `import * as _${t} from './${b}';\n`;
+        writer += `    _${t} as ${t},\n`;
     }
     const result = `${header}
 ${reader}
