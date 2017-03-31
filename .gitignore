@@ -5,6 +5,3 @@ node_modules/
 dist/
 dist-typings/
 
-# config files
-config/
-!config/default.yaml
